@@ -1,0 +1,63 @@
+AT LEAST ONE VARIANT OF BREAKOUT THAT YOU THOUGHT WAS INTERESTING AND WHAT WAS INTERESTING ABOUT IT
+
+I found a ping pong variant of breakout at http://www.gamesxl.com/arcade/breakout-pong.
+I thought it was interesting because it was a two-player rather than single player game. It also was interesting
+that they had the blocks on the opposite sides of the players and that rather than actual ping pong, where you are
+trying to get it past the other opponent to the other side, the goal of the game is to protect bricks, as the enemy
+bricks are the real source of points for a player to compete on.
+
+A GENERAL DESCRIPTION OF THE DIFFERENT LEVELS YOU INTEND TO BUILD (PERHAPS WITH "PICTURES" OF THE BLOCK CONFIGURATIONS)
+
+General description of how level progression works: The way the breakout ping pong example is played is based off a 
+points system where a player must protect his/her blocks in order to prevent the other opponent from scoring. 
+However, the way I want to implement ping pong is to give each player 3 lives at the beginning of each level, and a new
+level starts once one of the players loses all of his/her lives. At the end of the level, the victor is the survivor, 
+the victor is awarded 1 point, and the player with the most points after the final level is the overall winner.
+
+Level configurations: I plan on building 7 levels, each of which have block configurations that are read from a file.
+There will be a row of blocks behind each paddle, similar to that in block_config_example.jpg. In the first level,
+there will only be one row of blocks behind each paddle. In the second level, there will be two rows. In the third level,
+there will be three rows. In the fourth level, there will be four. In levels 5-7, blocks will be added in the middle of
+the screen in different configurations.
+
+Progression of difficulty with each level: With each level, the speed of the ball will gradually increase, the size 
+of the paddle will decrease, and the time between power ups appearing will gradually decrease.
+
+SEVERAL DIFFERENT BLOCKS YOU WANT TO CREATE
+
+One-tier block: One hit and it disappears.
+Two-tier block: Two hits and it disappears.
+Three-tier block: Three hits and it disappears.
+Extra-life block: Block that gives the player that hit it an extra life.
+Cement block: Unbreakable block
+Random power up block: Hit it and a random power up will be activated
+
+SEVERAL DIFFERENT POWER UPS YOU WANT TO CREATE
+
+Rules: 1) whoever hits the power up is the one that gets its effects, unless it's ball-related, in which case both players
+see the effects 2) all power ups are activated for only a certain amount of time
+
+Ball Clone - creates a copy (or copies) of the ball
+Cementer - turns all of your blocks into cement blocks
+Paddle Zoomer - increases the speed at which your paddle travels
+Paddle Slower - decreases the speed at which enemy paddle travels
+Ball Zoomer - makes the ball go fast
+Ball Slower - makes the ball go slow
+
+SEVERAL DIFFERENT CHEAT KEYS YOU ARE PLANNING TO INCLUDE
+
+1-7: allows you to jump to these levels in the game
+L: Gives player 1 an extra life
+T: Gives player 2 an extra life
+R: Resets the ball to starting position
+P: Pause the game
+Y: Restart the game
+
+SOMETHING EXTRA YOU INTEND TO ADD AND WHY YOU THINK IT IS A SUBSTANTIAL ADDITION
+
+Something extra - I want to add music to the game. For instance, a theme song while the game
+is playing, and a transition song in between each level.
+
+Why I think it is substantial - I think it's substantial because I'm essentially figuring out
+how to play music files from a java program and having them run constantly throughout the game. I would
+also need to take care of transition events.
