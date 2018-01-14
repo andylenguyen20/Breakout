@@ -37,20 +37,20 @@ SEVERAL DIFFERENT POWER UPS YOU WANT TO CREATE
 Rules: 1) whoever hits the power up is the one that gets its effects, unless it's ball-related, in which case both players
 see the effects 2) all power ups are activated for only a certain amount of time
 
-Ball Clone - creates a copy (or copies) of the ball
+Ball Clone - creates a copy of the ball
 Cementer - turns all of your blocks into cement blocks
-Paddle Zoomer - increases the speed at which your paddle travels
-Paddle Slower - decreases the speed at which enemy paddle travels
-Ball Zoomer - makes the ball go fast
-Ball Slower - makes the ball go slow
+Paddle Zoomer - makes your paddle travel a fraction (to-be-determined) faster
+Paddle Slower - makes the enemy paddle travel a fraction (to-be-determined) slower
+Ball Zoomer - makes the ball go a fraction (to-be-determined) faster
+Ball Slower - makes the ball go a fraction (to-be-determined) slower
 
 SEVERAL DIFFERENT CHEAT KEYS YOU ARE PLANNING TO INCLUDE
 
 1-7: allows you to jump to these levels in the game
 L: Gives player 1 an extra life
-T: Gives player 2 an extra life
+P: Gives player 2 an extra life
 R: Resets the ball to starting position
-P: Pause the game
+SPACE: Pause the game
 Y: Restart the game
 
 SOMETHING EXTRA YOU INTEND TO ADD AND WHY YOU THINK IT IS A SUBSTANTIAL ADDITION
