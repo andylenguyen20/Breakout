@@ -14,11 +14,16 @@ However, the way I want to implement ping pong is to give each player 3 lives at
 level starts once one of the players loses all of his/her lives. At the end of the level, the victor is the survivor, 
 the victor is awarded 1 point, and the player with the most points after the final level is the overall winner.
 
-Level configurations: I plan on building 7 levels, each of which have block configurations that are read from a file.
+Level configurations: I plan on building 3 levels, each of which have block configurations that are read from a file.
 There will be a row of blocks behind each paddle, similar to that in block_config_example.jpg. In the first level,
-there will only be one row of blocks behind each paddle. In the second level, there will be two rows. In the third level,
-there will be three rows. In the fourth level, there will be four. In levels 5-7, blocks will be added in the middle of
-the screen in different configurations.
+there will only be two rows of blocks behind each paddle. In the second level, there will be four rows. In the third level,
+there will be four rows of blocks with more blocks added in the middle of the screen in a three-layer brick offset layout:
+
+|		|
+	|
+|		|
+	|
+|		|
 
 Progression of difficulty with each level: With each level, the speed of the ball will gradually increase, the size 
 of the paddle will decrease, and the time between power ups appearing will gradually decrease.
@@ -46,11 +51,10 @@ Ball Slower - makes the ball go a fraction (to-be-determined) slower
 
 SEVERAL DIFFERENT CHEAT KEYS YOU ARE PLANNING TO INCLUDE
 
-1-7: allows you to jump to these levels in the game
+1-3: allows you to jump to these levels in the game
 L: Gives player 1 an extra life
 P: Gives player 2 an extra life
-R: Resets the ball to starting position
-SPACE: Pause the game
+R: Resets the ball and paddles to starting position
 Y: Restart the game
 
 SOMETHING EXTRA YOU INTEND TO ADD AND WHY YOU THINK IT IS A SUBSTANTIAL ADDITION

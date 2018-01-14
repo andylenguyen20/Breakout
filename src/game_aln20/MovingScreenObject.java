@@ -1,6 +1,6 @@
 package game_aln20;
 
-public class MovingScreenObject extends ScreenObject{
+public abstract class MovingScreenObject extends ScreenObject{
 	private double currentSpeed;
 	private double xDirection;
 	private double yDirection;

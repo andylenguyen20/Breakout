@@ -1,6 +1,6 @@
 package game_aln20;
 
-public class ScreenObject {
+public abstract class ScreenObject {
 	private double x;
 	private double y;
 	public double getX(){
