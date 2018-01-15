@@ -56,7 +56,6 @@ SEVERAL DIFFERENT CHEAT KEYS YOU ARE PLANNING TO INCLUDE
 L: Gives player 1 an extra life
 F: Gives player 2 an extra life
 R: Resets the ball and paddles to starting position
-Y: Restart the game
 
 SOMETHING EXTRA YOU INTEND TO ADD AND WHY YOU THINK IT IS A SUBSTANTIAL ADDITION
 
@@ -67,7 +66,7 @@ Why I think it is substantial - I think it's substantial because I'm essentially
 how to play music files from a java program and having them run constantly throughout the game. I would
 also need to take care of transition events.
 
-3 PADDLE ABILITIES (NOT PART OF PLAN, BUT INCLUDED JUST TO BE SAFE)
+3 PADDLE ABILITIES (NOT PART OF PLAN REQUIREMENTS, BUT INCLUDED JUST TO BE SAFE)
 
 Ideally, I want the paddle abilities to be activated when the player gets to his/her last life.
 
