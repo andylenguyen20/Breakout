@@ -70,6 +70,6 @@ also need to take care of transition events.
 
 Ideally, I want the paddle abilities to be activated when the player gets to his/her last life.
 
-Sticky paddle - your paddle can catch the ball and release it at a random direction by hitting a key
+Sticky paddle - your paddle can catch the ball and release it by hitting a key
 Big paddle - your paddle is twice as big as before
 Small paddle - enemy paddle is twice as small as before
