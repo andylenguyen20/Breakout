@@ -56,7 +56,6 @@ SEVERAL DIFFERENT CHEAT KEYS YOU ARE PLANNING TO INCLUDE
 L: Gives player 1 an extra life
 F: Gives player 2 an extra life
 R: Resets the ball and paddles to starting position
-SPACE: Spawn a random power up
 Y: Restart the game
 
 SOMETHING EXTRA YOU INTEND TO ADD AND WHY YOU THINK IT IS A SUBSTANTIAL ADDITION
@@ -67,3 +66,11 @@ is playing, and a transition song in between each level.
 Why I think it is substantial - I think it's substantial because I'm essentially figuring out
 how to play music files from a java program and having them run constantly throughout the game. I would
 also need to take care of transition events.
+
+3 PADDLE ABILITIES (NOT PART OF PLAN, BUT INCLUDED JUST TO BE SAFE)
+
+Ideally, I want the paddle abilities to be activated when the player gets to his/her last life.
+
+Sticky paddle - your paddle can catch the ball and release it at a random direction by hitting a key
+Big paddle - your paddle is twice as big as before
+Small paddle - enemy paddle is twice as small as before
