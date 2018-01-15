@@ -4,7 +4,14 @@ public class Ball extends MovingScreenObject{
 	public static final int BALL_DEFAULT_SPEED = 200;
 	public static final double BALL_SPEED_MULTIPLIER = 1.4;
 	
+	private double speed;
+	private double direction;
+	
 	public void doubleSpeed(){
 		
 	}
+	public void halveSpeed(){
+		
+	}
+	
 }
