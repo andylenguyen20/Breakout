@@ -1,5 +1,6 @@
 package game_aln20;
 
+
 import javafx.scene.image.Image;
 import java.awt.geom.Point2D.Double;
 
@@ -26,45 +27,47 @@ public class Brick extends ScreenObject{
 		double distBallCenter = this.distanceFromCenter(ball.getCenter());
 		double maxNonCornerDist = this.distanceFromCenter(new Double(getLeft(), getTop() + ball.getRadius()));
 		double minNonCornerDist = distanceFromCenter(new Double(getLeft() + ball.getRadius(), getTop()));
-		// hit top
-		if(ball.getBottom() >= getTop() && ball.getCenter().getX() >= getLeft()
-				&& ball.getCenter().getX() <= getRight() && ball.getBottom() <= getCenter().getY()){
-			System.out.println("hit top side");
+		boolean cornerHit = distBallCenter < maxNonCornerDist && distBallCenter > minNonCornerDist;
+		// hit top or bottom
+		if(ball.getCenter().getX() >= getLeft() && ball.getCenter().getX() <= getRight()){
+			System.out.println("hit top or bottom side");
 			ball.setDirection(ball.getDirection().getX(), -ball.getDirection().getY());
 			loseHealth();
-		}// hit right
-		else if(ball.getLeft() <= getRight() && ball.getCenter().getY() <= getBottom()
-				&& ball.getCenter().getY() >= getTop() && ball.getLeft() >= getCenter().getX()){
-			System.out.println("hit right side");
-			ball.setDirection(-ball.getDirection().getX(), ball.getDirection().getY());
-			loseHealth();
-		}// hit bottom
-		else if(ball.getTop() <= getBottom() && ball.getCenter().getX() >= getLeft()
-				&& ball.getCenter().getX() <= getRight() && ball.getTop() >= getCenter().getY()){
-			System.out.println("hit bottom side");
-			ball.setDirection(ball.getDirection().getX(), -ball.getDirection().getY());
-			loseHealth();
-		}// hit left
-		else if(ball.getRight() >= getLeft() && ball.getCenter().getY() >= getBottom()
-				&& ball.getCenter().getY() >= getTop() && ball.getRight() <= getCenter().getX()){
-			System.out.println("hit left side");
+		}// hit left or right
+		else if(ball.getCenter().getY() <= getBottom() && ball.getCenter().getY() >= getTop()){
+			System.out.println("hit left or right side");
 			ball.setDirection(-ball.getDirection().getX(), ball.getDirection().getY());
 			loseHealth();
 		}// hit top right corner
-		else if(ball.getCenter().getX() - ball.getRadius() <= getRight()){
-			
+		else if(cornerHit && ball.getCenter().getX() > getRight() && ball.getCenter().getY() < getTop()){
+			if(ball.getDirection().getX() < 0 && ball.getDirection().getY() > 0){
+				ball.setDirection(-ball.getDirection().getX(), -ball.getDirection().getY());
+			}
+			System.out.println("hit top right corner");
 		}// hit bottom right corner
-		else if(ball.getCenter().getX() - ball.getRadius() <= getRight()){
-			
+		else if(cornerHit && ball.getCenter().getX() > getRight() && ball.getCenter().getY() > getBottom()){
+			if(ball.getDirection().getX() < 0 && ball.getDirection().getY() < 0){
+				ball.setDirection(-ball.getDirection().getX(), -ball.getDirection().getY());
+			}
+			System.out.println("hit bottom right corner");
 		}// hit bottom left corner
-		else if(ball.getCenter().getX() - ball.getRadius() <= getRight()){
-			
+		else if(cornerHit && ball.getCenter().getX() < getLeft() && ball.getCenter().getY() > getBottom()){
+			if(ball.getDirection().getX() > 0 && ball.getDirection().getY() < 0){
+				ball.setDirection(-ball.getDirection().getX(), -ball.getDirection().getY());
+			}
+			System.out.println("hit bottom left corner");
 		}// hit top left corner
-		else if(ball.getCenter().getX() - ball.getRadius() <= getRight()){
-			
+		else if(cornerHit && ball.getCenter().getX() < getLeft() && ball.getCenter().getY() < getTop()){
+			if(ball.getDirection().getX() > 0 && ball.getDirection().getY() > 0){
+				ball.setDirection(-ball.getDirection().getX(), -ball.getDirection().getY());
+			}
+			System.out.println("hit top left corner");
 		}else{
 			System.out.println("collide method failed");
 		}
+	}
+	public Double getCornerRedirection(Ball ball){
+		return null;
 	}
 	
 	public void loseHealth(){

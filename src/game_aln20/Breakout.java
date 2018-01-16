@@ -53,13 +53,12 @@ public class Breakout extends Application{
 		paddle2 = new Paddle(paddleImage);
 		player1 = new Player(0,3, paddle1);
 		player2 = new Player(0,3, paddle2);
-		
 		setUpLevel(1);
-		
 		myScene = setUpGame(SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND);
         stage.setScene(myScene);
         stage.setTitle(TITLE);
         stage.show();
+        
         
         // attach "game loop" to timeline to play it
         KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY),
@@ -120,10 +119,10 @@ public class Breakout extends Application{
         }
         fis = new FileInputStream("images/ball.gif");
         ball = new Ball(new Image(fis));
-        ball.setPosition(260,260);
-      //TODO: make this more elegant
-        ball.setCenter(260 + ball.getRadius(), 260 + ball.getRadius());
-        ball.setDirection(-.6, .4);
+        ball.setStartingPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
+        ball.resetPosition();
+        Double rnDir = ball.getRandomNormalizedDirection();
+        ball.setDirection(rnDir.getX(), rnDir.getY());
 	}
 	private void step (double elapsedTime) {
 		ball.update(myScene,elapsedTime);
@@ -136,6 +135,10 @@ public class Breakout extends Application{
         paddle1.redirectBall(ball);
         paddle2.redirectBall(ball);
         ball.redirectOffScreen(myScene);
+        if(ball.isOffscreen(myScene)){
+        	System.out.println("lost life");
+        }
+        
     }
 	private void drawScreenObjects(){
 		
