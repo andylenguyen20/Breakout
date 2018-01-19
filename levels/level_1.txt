@@ -1,6 +1,6 @@
 50 215
 780 215
-0 0 multihit
+0 0 randpwr
 0 50 multihit
 0 100 multihit
 0 150 multihit
@@ -9,27 +9,27 @@
 0 300 multihit
 0 350 multihit
 0 400 multihit
-0 450 multihit
+0 450 randpwr
 20 0 multihit
 20 50 multihit
 20 100 multihit
 20 150 multihit
 20 200 multihit
-20 250 multihit
+20 250 extralife
 20 300 multihit
 20 350 multihit
 20 400 multihit
 20 450 multihit
-830 0 multihit
+830 0 randpwr
 830 50 multihit
 830 100 multihit
 830 150 multihit
 830 200 multihit
-830 250 multihit
+830 250 extralife
 830 300 multihit
 830 350 multihit
 830 400 multihit
-830 450 multihit
+830 450 randpwr
 810 0 multihit
 810 50 multihit
 810 100 multihit

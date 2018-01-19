@@ -1,8 +1,5 @@
 package game_aln20;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
 import javafx.scene.image.Image;
 
 public class MultiHitBrick extends Brick{
@@ -35,5 +32,8 @@ public class MultiHitBrick extends Brick{
 		}else{
 			setImage();
 		}
+	}
+	public boolean isActive(){
+		return active;
 	}
 }

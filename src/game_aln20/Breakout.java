@@ -1,14 +1,7 @@
 package game_aln20;
 
-import java.awt.geom.Point2D.Double;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -19,22 +12,15 @@ import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Breakout extends Application implements GameDelegate{
@@ -50,13 +36,17 @@ public class Breakout extends Application implements GameDelegate{
 	public static final String RULES_FILE_NAME = "rules.txt";
 	public static final int MAX_NUM_BALLS = 3;
 	
+	//public final Media background_song = new Media(getClass().getResource("3.wav").toExternalForm());
+	//public final Media transition_song = new Media(getClass().getResource("3.wav").toExternalForm());
+	//new MediaPlayer(sound_3).play();
+	
 	private Scene myScene;
 	private Group root;
 	
 	private Player player1, player2;
 	private Paddle paddle1, paddle2;
 	private CopyOnWriteArrayList<Ball> balls;
-	private ArrayList<Brick> bricks;
+	private CopyOnWriteArrayList<Brick> bricks;
 	private ArrayList<PowerUp> powerUps;
 	
 	private int powerUpDelay = 30;
@@ -172,13 +162,18 @@ public class Breakout extends Application implements GameDelegate{
 		paddle1.reset();
 		paddle2.setStartingPosition(input.nextInt(), input.nextInt());
 		paddle2.reset();
-        bricks = new ArrayList<Brick>();
+        bricks = new CopyOnWriteArrayList<Brick>();
         while(input.hasNextLine()) {
             int x = input.nextInt();
             int y = input.nextInt();
             Brick brick;
-            if(input.next().equals("multihit")){
+            String type = input.next();
+            if(type.equals("multihit")){
             	brick = generateRandomMultiHitBrick();
+            }else if(type.equals("randpwr")){
+            	brick = new RandomPwrBrick();
+            }else if(type.equals("extralife")){
+            	brick = new ExtraLifeBrick();
             }else{
             	brick = new CementBrick();
             }
@@ -214,6 +209,9 @@ public class Breakout extends Application implements GameDelegate{
 	        	boolean collision = brick.collide(ball);
 	        	if(collision && brick instanceof RandomPwrBrick){
 	        		((RandomPwrBrick) brick).activateRandomPowerUp(this);
+	        	}
+	        	if(collision && brick instanceof ExtraLifeBrick){
+	        		((ExtraLifeBrick) brick).awardExtraLife(this);
 	        	}
 	        }
 	        if(paddle1.redirectBall(ball)){
@@ -308,10 +306,13 @@ public class Breakout extends Application implements GameDelegate{
 				for(Ball ball : balls){
 					ball.reset();
 				}
-			case SPACE:
-				if(recentlyHit.getSticky()){
-					
-				}
+				break;
+			case D: paddle1.launchBall(this);
+				break;
+			case LEFT: paddle2.launchBall(this);
+				break;
+			case J: player1.loseLife();
+			case H: new BrickCementer().activate(this);
 		default:
 			break;
 		}
@@ -320,8 +321,7 @@ public class Breakout extends Application implements GameDelegate{
     	Brick[] options = new Brick[]
                 {new MultiHitBrick(1), 
                 		new MultiHitBrick(2),
-                        new MultiHitBrick(3),
-                        new RandomPwrBrick()};
+                        new MultiHitBrick(3)};
         return options[(int)(Math.random() * options.length)];
     }
     private PowerUp generateRandomPowerUp(){
@@ -374,8 +374,52 @@ public class Breakout extends Application implements GameDelegate{
 		paddle1.setFitHeight(paddle1.getFitHeight() * multiplier);
 	}
 	@Override
-	public void activateStickyPaddle() {
-		// TODO Auto-generated method stub
-		
+	public void launchBallFromStickyPaddle(Ball ball, Paddle paddle){
+		if(paddle == paddle1){
+			ball.setStartingPosition(paddle.getRight() + ball.getRadius() + 1, paddle.getCenter().getY());
+		}else{
+			ball.setStartingPosition(paddle.getLeft() - ball.getRadius() - 1, paddle.getCenter().getY());
+		}
+		ball.reset();
 	}
+	@Override
+	public void awardExtraLife(){
+		if(recentlyHit == null){
+			Random random = new Random();
+			recentlyHit = random.nextBoolean() ? paddle1 : paddle2;
+		}
+		if(recentlyHit == paddle1){
+			player1.addLife();
+		}else{
+			player2.addLife();
+		}
+	}
+	@Override
+	public ArrayList<Brick> turnBricksIntoCement(){
+		ArrayList<Brick> copy = new ArrayList<Brick>();
+		for(Brick brick : bricks){
+			if(brick instanceof MultiHitBrick){
+				if (((MultiHitBrick) brick).isActive()){
+					copy.add(brick);
+					CementBrick cb = new CementBrick();
+					cb.setX(brick.getX());
+					cb.setY(brick.getY());
+					cb.setCenter(cb.getX() + cb.getBoundsInLocal().getWidth()/2, cb.getY() + cb.getBoundsInLocal().getHeight()/2);
+					root.getChildren().add(cb);
+					root.getChildren().remove(brick);
+					bricks.remove(brick);
+					bricks.add(cb);
+				}
+			}
+		}
+		return copy;
+	}
+	@Override
+	public void revertBricksToNormal(ArrayList<Brick> copy){
+		root.getChildren().removeAll(bricks);
+		bricks.clear();
+		bricks.addAll(copy);
+		root.getChildren().addAll(copy);
+	}
+
 }

@@ -43,6 +43,7 @@ public class Ball extends MovingScreenObject{
 	}
 	public void reset(){
 		super.reset();
+		setCurrentSpeed(BALL_SPEED);
 		Double normalizedDir = getRandomNormalizedDirection();
 		setDirection(normalizedDir.getX(), normalizedDir.getY());
 	}

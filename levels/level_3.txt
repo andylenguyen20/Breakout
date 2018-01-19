@@ -1,6 +1,6 @@
 90 215
 740 215
-0 0 multihit
+0 0 randpwr
 0 50 multihit
 0 100 multihit
 0 150 multihit
@@ -9,7 +9,7 @@
 0 300 multihit
 0 350 multihit
 0 400 multihit
-0 450 multihit
+0 450 randpwr
 20 0 multihit
 20 50 multihit
 20 100 multihit
@@ -20,7 +20,7 @@
 20 350 multihit
 20 400 multihit
 20 450 multihit
-40 0 multihit
+40 0 extralife
 40 50 multihit
 40 100 multihit
 40 150 multihit
@@ -40,7 +40,7 @@
 40 350 multihit
 40 400 multihit
 40 450 multihit
-60 0 multihit
+60 0 randpwr
 60 50 multihit
 60 100 multihit
 60 150 multihit
@@ -49,8 +49,8 @@
 60 300 multihit
 60 350 multihit
 60 400 multihit
-60 450 multihit
-830 0 multihit
+60 450 randpwr
+830 0 randpwr
 830 50 multihit
 830 100 multihit
 830 150 multihit
@@ -59,8 +59,8 @@
 830 300 multihit
 830 350 multihit
 830 400 multihit
-830 450 multihit
-810 0 multihit
+830 450 randpwr
+810 0 extralife
 810 50 multihit
 810 100 multihit
 810 150 multihit
@@ -80,7 +80,7 @@
 790 350 multihit
 790 400 multihit
 790 450 multihit
-770 0 multihit
+770 0 randpwr
 770 50 multihit
 770 100 multihit
 770 150 multihit
@@ -89,7 +89,7 @@
 770 300 multihit
 770 350 multihit
 770 400 multihit
-770 450 multihit
+770 450 randpwr
 280 25 multihit
 280 125 multihit
 280 225 multihit
