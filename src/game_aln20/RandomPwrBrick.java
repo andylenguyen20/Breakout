@@ -15,13 +15,8 @@ public class RandomPwrBrick extends MultiHitBrick{
 			e.printStackTrace();
 		}
 	}
-	public boolean collide(Ball ball){
-		if(super.collide(ball)){
-			//TODO
-			System.out.println("random power up!");
-			return true;
-		}
-		return false;
+	public void activateRandomPowerUp(GameDelegate gd){
+		gd.activateRandomPowerUp();
 	}
 	
 }

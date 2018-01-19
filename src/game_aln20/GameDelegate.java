@@ -5,4 +5,7 @@ public interface GameDelegate {
 	void changePaddleSpeed(double multiplier);
 	void cloneBall();
 	void removeBall();
+	void activateRandomPowerUp();
+	void changePaddleSize(double multiplier);
+	void activateStickyPaddle();
 }

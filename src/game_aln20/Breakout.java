@@ -35,6 +35,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Breakout extends Application implements GameDelegate{
 	public static final Paint BACKGROUND = Color.AZURE;
@@ -54,22 +55,23 @@ public class Breakout extends Application implements GameDelegate{
 	
 	private Player player1, player2;
 	private Paddle paddle1, paddle2;
-	private Ball[] balls;
+	private CopyOnWriteArrayList<Ball> balls;
 	private ArrayList<Brick> bricks;
 	private ArrayList<PowerUp> powerUps;
 	
-	private int powerUpDelay = 10;
+	private int powerUpDelay = 30;
 	private int level = 1;
 	private Paddle recentlyHit;
 	
 	Text scorePanel;
+	Timeline timeline;
 	
 	@Override
 	public void start(Stage stage) {
 		// TODO Auto-generated method stub
 		Image paddleImage = new Image(getClass().getClassLoader().getResourceAsStream(Paddle.IMAGE_NAME));
 		powerUps = new ArrayList<>();
-		balls = new Ball[MAX_NUM_BALLS];
+		balls = new CopyOnWriteArrayList<Ball>();
 		paddle1 = new Paddle(paddleImage);
 		paddle2 = new Paddle(paddleImage);
 		player1 = new Player(0,3, paddle1);
@@ -134,8 +136,8 @@ public class Breakout extends Application implements GameDelegate{
         }
         root.getChildren().add(scorePanel);
 	}
-	private void setUpLevel(int level){	    
-		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(powerUpDelay), ev -> {
+	private void setUpLevel(int level){	   
+		timeline = new Timeline(new KeyFrame(Duration.seconds(powerUpDelay), ev -> {
 			PowerUp powerUp = generateRandomPowerUp();
             powerUp.spawnInRandomLocation(SCREEN_WIDTH, SCREEN_HEIGHT);
             root.getChildren().add(powerUp);
@@ -158,10 +160,8 @@ public class Breakout extends Application implements GameDelegate{
         startingBall.setStartingPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
         startingBall.reset();
         //TODO: make this cleaner
-        for(Ball ball : balls){
-        	ball = null;
-        }
-        balls[0] = startingBall;
+        balls.clear();
+        balls.add(startingBall);
         player1.reset();
         player2.reset();
         updateRoot();
@@ -195,6 +195,7 @@ public class Breakout extends Application implements GameDelegate{
 		checkOffscreen();
 		checkLives();
         checkPowerUps();
+        adjustPaddlesIfNeeded();
     }
 	
 	private void updateMovingObjects(double elapsedTime){
@@ -209,7 +210,11 @@ public class Breakout extends Application implements GameDelegate{
 		for(Ball ball : balls){
 			if(ball == null) continue;
 			for(int i = 0; i < bricks.size(); i++){
-	        	bricks.get(i).collide(ball);
+				Brick brick = bricks.get(i);
+	        	boolean collision = brick.collide(ball);
+	        	if(collision && brick instanceof RandomPwrBrick){
+	        		((RandomPwrBrick) brick).activateRandomPowerUp(this);
+	        	}
 	        }
 	        if(paddle1.redirectBall(ball)){
 	        	recentlyHit = paddle1;
@@ -224,23 +229,44 @@ public class Breakout extends Application implements GameDelegate{
 			ball.redirectOffScreen(myScene);
 	        if(ball.checkOffScreen(myScene) == -1){
 	        	player1.loseLife();
-	        	root.getChildren().remove(ball);
-	        	ball.reset();
+	        	if(balls.size() > 1){
+	        		root.getChildren().remove(ball);
+	        	}else{
+	        		ball.reset();
+	        	}
 	        }else if(ball.checkOffScreen(myScene) == 1){
 	        	player2.loseLife();
-	        	root.getChildren().remove(ball);
-	        	ball.reset();
+	        	if(balls.size() > 1){
+	        		root.getChildren().remove(ball);
+	        	}else{
+	        		ball.reset();
+	        	}
 	        }
 		}
 	}
 	private void checkLives(){
 		//http://www.java2s.com/Code/Java/JavaFX/UsingLabeltodisplayText.htm
 		scorePanel.setText(player1.getLives() + "|Lives|" + player2.getLives());
-        if(player1.getLives() == 0 || player2.getLives() == 0){
+        if(player1.getLives() == 0){
+        	player1.incrementScore();
+        	root.getChildren().clear();
+			setUpLevel(++level);
+			updateRoot();
+        }else if(player2.getLives() == 0){
+        	player2.incrementScore();
         	root.getChildren().clear();
 			setUpLevel(++level);
 			updateRoot();
         }
+	}
+	
+	private void adjustPaddlesIfNeeded(){
+		if(player1.getLives() == 1){
+			paddle1.activateSpecialAbility(this);
+		}
+		if(player2.getLives() == 1){
+			paddle1.activateSpecialAbility(this);
+		}
 	}
 	private void checkPowerUps(){
 		
@@ -282,6 +308,10 @@ public class Breakout extends Application implements GameDelegate{
 				for(Ball ball : balls){
 					ball.reset();
 				}
+			case SPACE:
+				if(recentlyHit.getSticky()){
+					
+				}
 		default:
 			break;
 		}
@@ -296,13 +326,14 @@ public class Breakout extends Application implements GameDelegate{
     }
     private PowerUp generateRandomPowerUp(){
     	PowerUp[] options = new PowerUp[]
-                {
+                { new PaddleSpeedAdjuster(2), new PaddleSpeedAdjuster(0.5),
+                	new BallSpeedAdjuster(2), new BallSpeedAdjuster(0.5),
                 	new BallCloner()};
         return options[(int)(Math.random() * options.length)];
     }
 	@Override
 	public void changeBallSpeed(double multiplier) {
-		for(Ball ball : balls){
+		for(Ball ball: balls){
 			ball.setCurrentSpeed(ball.getCurrentSpeed() * multiplier);
 		}
 	}
@@ -317,7 +348,7 @@ public class Breakout extends Application implements GameDelegate{
 	@Override
 	public void cloneBall() {
 		Image ballImage = new Image(getClass().getClassLoader().getResourceAsStream(Ball.IMAGE_NAME));
-		Ball referenceBall = getActiveBall();
+		Ball referenceBall = balls.get(0);
 		Ball clone = new Ball(ballImage);
 		clone.setStartingPosition(referenceBall.getX(), referenceBall.getY());
 		clone.reset();
@@ -326,9 +357,25 @@ public class Breakout extends Application implements GameDelegate{
 	}
 	@Override
 	public void removeBall(){
+		if(balls.size()==1) return;
+		Ball toBeRemoved = balls.remove(balls.size() - 1);
 		root.getChildren().remove(toBeRemoved);
+	}
+	@Override
+	public void activateRandomPowerUp(){
+		PowerUp randomPowerUp = generateRandomPowerUp();
+		randomPowerUp.activate(this);
 	}
 	public static void main (String[] args) {
         launch(args);
     }
+	@Override
+	public void changePaddleSize(double multiplier) {
+		paddle1.setFitHeight(paddle1.getFitHeight() * multiplier);
+	}
+	@Override
+	public void activateStickyPaddle() {
+		// TODO Auto-generated method stub
+		
+	}
 }
