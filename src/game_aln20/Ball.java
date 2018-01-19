@@ -11,8 +11,10 @@ public class Ball extends MovingScreenObject{
 	public static final double BALL_SPEED = 500;
 	public static final String IMAGE_NAME = "ball.gif";
 	
-	public Ball(Image img){
-		super(img);
+	public Ball(){
+		super();
+		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
+		setImage(image);
 		setFitWidth(BALL_RADIUS);
 		setFitHeight(BALL_RADIUS);
 		setCurrentSpeed(BALL_SPEED);

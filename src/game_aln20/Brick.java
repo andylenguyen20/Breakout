@@ -7,14 +7,10 @@ public abstract class Brick extends ScreenObject{
 	public static final double BRICK_HEIGHT = 49;
 	
 	public Brick() {
-		this(null);
-	}
-	public Brick(Image img){
-		super(img);
+		super();
 		setFitWidth(BRICK_WIDTH);
 		setFitHeight(BRICK_HEIGHT);
 	}
-	
 	public boolean collide(Ball ball){
 		if(!ball.intersects(this)){
 			return false;

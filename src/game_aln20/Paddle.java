@@ -12,13 +12,16 @@ public class Paddle extends MovingScreenObject{
 	public static final double PADDLE_HEIGHT = 75;
 	public static final double PADDLE_SPEED = 100;
 	public static final String IMAGE_NAME = "paddle.gif";
+	
 	private boolean sticky;
 	private boolean abilityOn;
 	private Ball stuckBall;
 	//private Double ballDirection;
 	
-	public Paddle(Image img) {
-		super(img);
+	public Paddle() {
+		super();
+		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
+		setImage(image);
 		setFitWidth(PADDLE_WIDTH);
 		setFitHeight(PADDLE_HEIGHT);
 		setDirection(0,0);
@@ -91,11 +94,11 @@ public class Paddle extends MovingScreenObject{
 		if(stuckBall == null){
 			System.out.println("center");
 			//ballDirection = ball.getDirection();
-			ball.setPosition(getCenter().getX(), getCenter().getY());
+			ball.setPosition(getCenter().getX() - ball.getRadius(), getCenter().getY()- ball.getRadius());
 			ball.setCurrentSpeed(0);
 			stuckBall = ball;
 		}else{
-			ball.setPosition(getCenter().getX(), getCenter().getY());
+			ball.setPosition(getCenter().getX() - ball.getRadius(), getCenter().getY()- ball.getRadius());
 		}
 	}
 	public void launchBall(GameDelegate gd){
