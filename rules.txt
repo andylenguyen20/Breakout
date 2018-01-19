@@ -1,0 +1,5 @@
+1. Each player has three lives per level
+2. Players lose lives when the ball goes past their paddles and off their respective side
+3. Down to your last life? You are granted a special paddle ability
+4. Lost all of your lives? The surviving player wins that level
+5. Whoever has the most wins out of all three levels is the victor!

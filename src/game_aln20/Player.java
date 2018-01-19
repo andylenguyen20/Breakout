@@ -17,6 +17,9 @@ public class Player {
 	public int getLives(){
 		return lives;
 	}
+	public void addLife(){
+		lives++;
+	}
 	public void incrementScore(){
 		score++;
 	}
@@ -25,5 +28,8 @@ public class Player {
 	}
 	public Paddle getPaddle(){
 		return paddle;
+	}
+	public void reset(){
+		this.lives = 3;
 	}
 }

@@ -8,6 +8,7 @@ public class Paddle extends MovingScreenObject{
 	public static final double PADDLE_WIDTH = 20;
 	public static final double PADDLE_HEIGHT = 75;
 	public static final double PADDLE_SPEED = 100;
+	public static final String IMAGE_NAME = "paddle.gif";
 	
 	public Paddle(Image img) {
 		super(img);
@@ -26,11 +27,23 @@ public class Paddle extends MovingScreenObject{
 		}
 		update(elapsedTime);
 	}
-	public void redirectBall(Ball ball){
+	public boolean redirectBall(Ball ball){
 		if(!ball.intersects(this)){
-			return;
+			return false;
 		}
-		ball.setDirection(-ball.getDirection().getX(), ball.getDirection().getY());
+		if(ball.getCenter().getX() >= getLeft() && ball.getCenter().getX() <= getRight()){
+			System.out.println("hit top or bottom side of paddle");
+			ball.setDirection(ball.getDirection().getX(), -ball.getDirection().getY());
+		}// hit left or right
+		else if(ball.getCenter().getY() <= getBottom() && ball.getCenter().getY() >= getTop()){
+			System.out.println("hit left or right side of paddle");
+			ball.setDirection(-ball.getDirection().getX(), ball.getDirection().getY());
+		}
+		return true;
 	}
-	
+	public void reset(){
+		super.reset();
+		setDirection(0,0);
+	}
+
 }

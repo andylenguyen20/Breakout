@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
 public abstract class MovingScreenObject extends ScreenObject{
 	private double currentSpeed;
 	private Double direction;
+	private Double startingPos;
 	
 	public MovingScreenObject(Image img){
 		super(img);
@@ -26,8 +27,20 @@ public abstract class MovingScreenObject extends ScreenObject{
 	public Double getPosition(){
 		return new Double(getX(),getY());
 	}
+	public void setStartingPosition(double x, double y){
+		startingPos = new Double(x,y);
+		setCenter(x + getBoundsInLocal().getWidth()/2, y + getBoundsInLocal().getHeight()/2);
+	}
+	public void reset(){
+		setX(startingPos.getX());
+		setY(startingPos.getY());
+		setCenter(getX() + getBoundsInLocal().getWidth()/2, getY() + getBoundsInLocal().getHeight()/2);
+	}
 	public void setCurrentSpeed(double speed){
 		currentSpeed = speed;
+	}
+	public double getCurrentSpeed(){
+		return currentSpeed;
 	}
 	public void update(double elapsedTime){
 		setPosition(getX() + currentSpeed * direction.getX() * elapsedTime,

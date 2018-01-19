@@ -6,6 +6,9 @@ import javafx.scene.image.ImageView;
 
 public abstract class ScreenObject extends ImageView{
 	private Double center;
+	public ScreenObject(){
+		this(null);
+	}
 	public ScreenObject(Image img){
 		super(img);
 		center = new Double();
@@ -28,7 +31,4 @@ public abstract class ScreenObject extends ImageView{
 	public double getRight(){
         return getCenter().x + getBoundsInLocal().getWidth() / 2;
     }
-	public double distanceFromCenter(Double point){
-		return Math.sqrt(Math.pow(center.getX() - point.getX(), 2) + Math.pow(center.getY() - point.getY(), 2));
-	}
 }

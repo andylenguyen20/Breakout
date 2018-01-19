@@ -1,42 +1,42 @@
 50 215
 780 215
-0 0
-0 50
-0 100
-0 150
-0 200
-0 250
-0 300
-0 350
-0 400
-0 450
-20 0
-20 50
-20 100
-20 150
-20 200
-20 250
-20 300
-20 350
-20 400
-20 450
-830 0
-830 50
-830 100
-830 150
-830 200
-830 250
-830 300
-830 350
-830 400
-830 450
-810 0
-810 50
-810 100
-810 150
-810 200
-810 250
-810 300
-810 350
-810 400
-810 450
+0 0 multihit
+0 50 multihit
+0 100 multihit
+0 150 multihit
+0 200 multihit
+0 250 multihit
+0 300 multihit
+0 350 multihit
+0 400 multihit
+0 450 multihit
+20 0 multihit
+20 50 multihit
+20 100 multihit
+20 150 multihit
+20 200 multihit
+20 250 multihit
+20 300 multihit
+20 350 multihit
+20 400 multihit
+20 450 multihit
+830 0 multihit
+830 50 multihit
+830 100 multihit
+830 150 multihit
+830 200 multihit
+830 250 multihit
+830 300 multihit
+830 350 multihit
+830 400 multihit
+830 450 multihit
+810 0 multihit
+810 50 multihit
+810 100 multihit
+810 150 multihit
+810 200 multihit
+810 250 multihit
+810 300 multihit
+810 350 multihit
+810 400 multihit
+810 450 multihit

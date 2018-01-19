@@ -8,59 +8,102 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Random;
 import java.util.Scanner;
 
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class Breakout extends Application{
+public class Breakout extends Application implements GameDelegate{
 	public static final Paint BACKGROUND = Color.AZURE;
 	public static final int FRAMES_PER_SECOND = 60;
     public static final int MILLISECOND_DELAY = 1000 / FRAMES_PER_SECOND;
     public static final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
 	public static final int SCREEN_WIDTH = 850;
 	public static final int SCREEN_HEIGHT = 500;
-	public static final String TITLE = "Breakout Pong";
+	public static final String GAME_TITLE = "Breakout Pong Game";
+	public static final String START_TITLE = "Breakout Pong Rules";
+	public static final String SUBMIT_MSG = "PLAY!";
+	public static final String RULES_FILE_NAME = "rules.txt";
+	public static final int MAX_NUM_BALLS = 3;
 	
 	private Scene myScene;
 	private Group root;
 	
 	private Player player1, player2;
 	private Paddle paddle1, paddle2;
-	private Ball ball;
+	private Ball[] balls;
 	private ArrayList<Brick> bricks;
-	private int level = 1;
+	private ArrayList<PowerUp> powerUps;
 	
+	private int powerUpDelay = 10;
+	private int level = 1;
+	private Paddle recentlyHit;
+	
+	Text scorePanel;
 	
 	@Override
-	public void start(Stage stage) throws Exception {
+	public void start(Stage stage) {
 		// TODO Auto-generated method stub
-		
-		FileInputStream fis = new FileInputStream("images/paddle.gif");
-		Image paddleImage = new Image(fis);
+		Image paddleImage = new Image(getClass().getClassLoader().getResourceAsStream(Paddle.IMAGE_NAME));
+		powerUps = new ArrayList<>();
+		balls = new Ball[MAX_NUM_BALLS];
 		paddle1 = new Paddle(paddleImage);
 		paddle2 = new Paddle(paddleImage);
 		player1 = new Player(0,3, paddle1);
 		player2 = new Player(0,3, paddle2);
+		scorePanel = new Text(400, 10, player1.getLives() + "|Lives|" + player2.getLives());
+		root = new Group();
 		setUpLevel(1);
-		myScene = setUpGame(SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND);
+		VBox vbox = new VBox();
+	
+		Scanner input = null;
+        try {
+            input = new Scanner(new File(RULES_FILE_NAME));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+ 
+        while(input.hasNextLine()){
+            vbox.getChildren().add(new Text(input.nextLine()));
+        }
+    	Button button = new Button(SUBMIT_MSG);
+    	button.setOnAction(action -> {
+			startGameFromScene(stage);
+    	});
+    	vbox.getChildren().add(button);
+    	stage.setTitle(START_TITLE);
+    	myScene = new Scene(vbox, 500, 150);
         stage.setScene(myScene);
-        stage.setTitle(TITLE);
         stage.show();
-        
-        
-        // attach "game loop" to timeline to play it
+	}
+	private void startGameFromScene(Stage stage){
+		myScene = setUpGame(SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND);
+		stage.setScene(myScene);
+        stage.setTitle(GAME_TITLE);
+        stage.show();
         KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY),
                                       e -> step(SECOND_DELAY));
         Timeline animation = new Timeline();
@@ -68,19 +111,13 @@ public class Breakout extends Application{
         animation.getKeyFrames().add(frame);
         animation.play();
 	}
-	private Scene setUpGame(int width, int height, Paint background) throws FileNotFoundException{
-        root = new Group();
+	private Scene setUpGame(int width, int height, Paint background){
         Scene scene = new Scene(root, width, height, background);
         // make some shapes and set their properties
         updateRoot();
         // respond to input
         scene.setOnKeyPressed(e -> {
-			try {
 				handleKeyInput(e.getCode());
-			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
 		});
         return scene;
 	}
@@ -88,89 +125,208 @@ public class Breakout extends Application{
 		root.getChildren().clear();
 		root.getChildren().add(player1.getPaddle());
         root.getChildren().add(player2.getPaddle());
-        for(int i = 0; i < bricks.size(); i++){
-        	root.getChildren().add(bricks.get(i));
+        for(Brick brick : bricks){
+        	root.getChildren().add(brick);
         }
-        root.getChildren().add(ball);
+        for(Ball ball : balls){
+        	if(ball == null) continue;
+        	root.getChildren().add(ball);
+        }
+        root.getChildren().add(scorePanel);
 	}
-	private void setUpLevel(int level) throws FileNotFoundException{
+	private void setUpLevel(int level){	    
+		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(powerUpDelay), ev -> {
+			PowerUp powerUp = generateRandomPowerUp();
+            powerUp.spawnInRandomLocation(SCREEN_WIDTH, SCREEN_HEIGHT);
+            root.getChildren().add(powerUp);
+            powerUps.add(powerUp);
+	    }));
+	    timeline.setCycleCount(Animation.INDEFINITE);
+	    timeline.play();
 		// file-reading information taken from http://www2.lawrence.edu/fast/GREGGJ/CMSC150/031Files/031Files.html
-        String fileName = "levels/level_" + level + ".txt";
+		this.level = level;
+		String fileName = "levels/level_" + level + ".txt";
         Scanner input = null;
         try {
             input = new Scanner(new File(fileName));
+            setPositionsFromFile(input);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-		paddle1.setPosition(input.nextInt(), input.nextInt());
-		paddle2.setPosition(input.nextInt(), input.nextInt());
-		FileInputStream fis = new FileInputStream("images/brick1.gif");
+        Image ballImage = new Image(getClass().getClassLoader().getResourceAsStream(Ball.IMAGE_NAME));
+        Ball startingBall = new Ball(ballImage);
+        startingBall.setStartingPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
+        startingBall.reset();
+        //TODO: make this cleaner
+        for(Ball ball : balls){
+        	ball = null;
+        }
+        balls[0] = startingBall;
+        player1.reset();
+        player2.reset();
+        updateRoot();
+	}
+	
+	private void setPositionsFromFile(Scanner input){
+		paddle1.setStartingPosition(input.nextInt(), input.nextInt());
+		paddle1.reset();
+		paddle2.setStartingPosition(input.nextInt(), input.nextInt());
+		paddle2.reset();
         bricks = new ArrayList<Brick>();
         while(input.hasNextLine()) {
             int x = input.nextInt();
             int y = input.nextInt();
-            fis = new FileInputStream("images/brick1.gif");
-            Brick brick = new Brick(new Image(fis));
+            Brick brick;
+            if(input.next().equals("multihit")){
+            	brick = generateRandomMultiHitBrick();
+            }else{
+            	brick = new CementBrick();
+            }
             brick.setX(x);
             brick.setY(y);
           //TODO: make this more elegant
             brick.setCenter(x + brick.getBoundsInLocal().getWidth()/2, y + brick.getBoundsInLocal().getHeight()/2);
             bricks.add(brick);
         }
-        fis = new FileInputStream("images/ball.gif");
-        ball = new Ball(new Image(fis));
-        ball.setStartingPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
-        ball.resetPosition();
-        Double rnDir = ball.getRandomNormalizedDirection();
-        ball.setDirection(rnDir.getX(), rnDir.getY());
 	}
 	private void step (double elapsedTime) {
-		ball.update(myScene,elapsedTime);
+		updateMovingObjects(elapsedTime);
+		checkCollisions();
+		checkOffscreen();
+		checkLives();
+        checkPowerUps();
+    }
+	
+	private void updateMovingObjects(double elapsedTime){
+		for(Ball ball : balls){
+			if(ball == null) continue;
+			ball.update(myScene,elapsedTime);
+		}
 		paddle1.update(myScene,elapsedTime);
         paddle2.update(myScene,elapsedTime);
-        
-        for(int i = 0; i < bricks.size(); i++){
-        	bricks.get(i).collide(ball);
-        }
-        paddle1.redirectBall(ball);
-        paddle2.redirectBall(ball);
-        ball.redirectOffScreen(myScene);
-        if(ball.isOffscreen(myScene)){
-        	System.out.println("lost life");
-        }
-        
-    }
-	private void drawScreenObjects(){
-		
 	}
-	private void handleKeyInput(KeyCode code) throws FileNotFoundException{
-		if (code == KeyCode.UP) {
-            player2.getPaddle().setDirection(0,-1);
-        }
-        else if (code == KeyCode.DOWN) {
-        	player2.getPaddle().setDirection(0,1);
-        }
-        else if (code == KeyCode.W) {
-        	player1.getPaddle().setDirection(0,-1);
-        }
-        else if (code == KeyCode.S) {
-        	player1.getPaddle().setDirection(0,1);
-        }
-        else if (code == KeyCode.DIGIT1) {
+	private void checkCollisions(){
+		for(Ball ball : balls){
+			if(ball == null) continue;
+			for(int i = 0; i < bricks.size(); i++){
+	        	bricks.get(i).collide(ball);
+	        }
+	        if(paddle1.redirectBall(ball)){
+	        	recentlyHit = paddle1;
+	        }else if(paddle2.redirectBall(ball)){
+	        	recentlyHit = paddle2;
+	        }
+		}
+	}
+	private void checkOffscreen(){
+		for(Ball ball : balls){
+			if(ball == null) continue;
+			ball.redirectOffScreen(myScene);
+	        if(ball.checkOffScreen(myScene) == -1){
+	        	player1.loseLife();
+	        	root.getChildren().remove(ball);
+	        	ball.reset();
+	        }else if(ball.checkOffScreen(myScene) == 1){
+	        	player2.loseLife();
+	        	root.getChildren().remove(ball);
+	        	ball.reset();
+	        }
+		}
+	}
+	private void checkLives(){
+		//http://www.java2s.com/Code/Java/JavaFX/UsingLabeltodisplayText.htm
+		scorePanel.setText(player1.getLives() + "|Lives|" + player2.getLives());
+        if(player1.getLives() == 0 || player2.getLives() == 0){
         	root.getChildren().clear();
-        	setUpLevel(1);
-        	updateRoot();
+			setUpLevel(++level);
+			updateRoot();
         }
-        else if (code == KeyCode.DIGIT2) {
-        	root.getChildren().clear();
-        	setUpLevel(2);
-        	updateRoot();
-        }
-        else if (code == KeyCode.DIGIT3) {
-        	root.getChildren().clear();
-        	setUpLevel(3);
-        	updateRoot();
-        }
+	}
+	private void checkPowerUps(){
+		
+		//for(Iterator<Ball> ballsIter = balls.iterator(); ballsIter.hasNext();){
+			//Ball ball = ballsIter.next();
+		for(Ball ball: balls){
+			if(ball == null) continue;
+			for(int i = 0; i < powerUps.size(); i++){
+	        	if(ball.intersects(powerUps.get(i)) && powerUps.get(i).isActive()){
+	        		powerUps.get(i).disable();
+	        		powerUps.get(i).activate(this);
+	        	}
+	        }
+		}
+	}
+	
+	private void handleKeyInput(KeyCode code){
+		switch(code){
+			case UP: player2.getPaddle().setDirection(0,-1);
+				break;
+			case DOWN: player2.getPaddle().setDirection(0,1);
+				break;
+			case W: player1.getPaddle().setDirection(0,-1);
+				break;
+			case S: player1.getPaddle().setDirection(0,1);
+				break;
+			case DIGIT1: setUpLevel(1);
+				break;
+			case DIGIT2: setUpLevel(2);
+				break;
+			case DIGIT3: setUpLevel(3);
+				break;
+			case L: player1.addLife();
+				break;
+			case F: player2.addLife();
+				break;
+			case R: paddle1.reset();
+				paddle2.reset();
+				for(Ball ball : balls){
+					ball.reset();
+				}
+		default:
+			break;
+		}
+	}
+    private Brick generateRandomMultiHitBrick(){
+    	Brick[] options = new Brick[]
+                {new MultiHitBrick(1), 
+                		new MultiHitBrick(2),
+                        new MultiHitBrick(3),
+                        new RandomPwrBrick()};
+        return options[(int)(Math.random() * options.length)];
+    }
+    private PowerUp generateRandomPowerUp(){
+    	PowerUp[] options = new PowerUp[]
+                {
+                	new BallCloner()};
+        return options[(int)(Math.random() * options.length)];
+    }
+	@Override
+	public void changeBallSpeed(double multiplier) {
+		for(Ball ball : balls){
+			ball.setCurrentSpeed(ball.getCurrentSpeed() * multiplier);
+		}
+	}
+	@Override
+	public void changePaddleSpeed(double multiplier) {
+		if(recentlyHit == null){
+			Random random = new Random();
+			recentlyHit = random.nextBoolean() ? paddle1 : paddle2;
+		}
+		recentlyHit.setCurrentSpeed(recentlyHit.getCurrentSpeed() * multiplier);
+	}
+	@Override
+	public void cloneBall() {
+		Image ballImage = new Image(getClass().getClassLoader().getResourceAsStream(Ball.IMAGE_NAME));
+		Ball referenceBall = getActiveBall();
+		Ball clone = new Ball(ballImage);
+		clone.setStartingPosition(referenceBall.getX(), referenceBall.getY());
+		clone.reset();
+		balls.add(clone);
+		root.getChildren().add(clone);
+	}
+	@Override
+	public void removeBall(){
+		root.getChildren().remove(toBeRemoved);
 	}
 	public static void main (String[] args) {
         launch(args);

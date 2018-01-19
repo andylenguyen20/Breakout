@@ -8,8 +8,9 @@ import java.util.Random;
 
 public class Ball extends MovingScreenObject{
 	public static final double BALL_RADIUS = 20;
-	public static final double BALL_SPEED = 400;
-	private Double startingPos;
+	public static final double BALL_SPEED = 500;
+	public static final String IMAGE_NAME = "ball.gif";
+	
 	public Ball(Image img){
 		super(img);
 		setFitWidth(BALL_RADIUS);
@@ -32,22 +33,24 @@ public class Ball extends MovingScreenObject{
 			setDirection(getDirection().getX(), -getDirection().getY());
 		}
 	}
-	public boolean isOffscreen(Scene scene){
-		return getRight() <= 0 || getLeft() >= scene.getWidth();
+	public int checkOffScreen(Scene scene){
+		if(getRight() <= 0){
+			return -1;
+		}else if(getLeft() >= scene.getWidth()){
+			return 1;
+		}
+		return 0;
 	}
-	public void setStartingPosition(double x, double y){
-		startingPos = new Double(x,y);
-		setCenter(x + getRadius(), y + getRadius());
+	public void reset(){
+		super.reset();
+		Double normalizedDir = getRandomNormalizedDirection();
+		setDirection(normalizedDir.getX(), normalizedDir.getY());
 	}
-	public void resetPosition(){
-		setX(startingPos.getX());
-		setY(startingPos.getY());
-	}
-	public Double getRandomNormalizedDirection(){
+	private Double getRandomNormalizedDirection(){
 		Random random = new Random();
-		double x = random.nextDouble() * (random.nextBoolean() ? 1 : -1);
-		double y = random.nextDouble() * (random.nextBoolean() ? 1 : -1);
+		double y = random.nextDouble();
+		double x = random.nextDouble() + y/2; //y direction will never overpower x direction
 		double mag = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-		return new Double(x/mag, y/mag);
+		return new Double((random.nextBoolean() ? 1 : -1) * (x/mag), (random.nextBoolean() ? 1 : -1) * (y/mag));
 	}
 }
