@@ -12,6 +12,7 @@ public class BallSpeedAdjuster extends SpeedAdjuster{
 		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
 		setImage(image);
 	}
+	
 	public void activate(GameDelegate gd){
 		super.activate(gd);
 		gd.changeBallSpeed(speedMultiplier);

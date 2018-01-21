@@ -7,6 +7,7 @@ public class Player {
 	
 	private int score;
 	private int lives;
+	private Player opponent;
 	private Paddle paddle;
 	private CopyOnWriteArrayList<Brick> bricks;
 	
@@ -42,5 +43,11 @@ public class Player {
 	}
 	public CopyOnWriteArrayList<Brick> getBricks(){
 		return bricks;
+	}
+	public Player getOpponent(){
+		return opponent;
+	}
+	public void setOpponent(Player opponent){
+		this.opponent = opponent;
 	}
 }

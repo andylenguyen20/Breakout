@@ -11,15 +11,23 @@ public class Ball extends MovingScreenObject{
 	public static final double BALL_SPEED = 500;
 	public static final String IMAGE_NAME = "ball.gif";
 	
+	public double startingSpeed;
+	
 	public Ball(){
 		super();
 		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
 		setImage(image);
 		setFitWidth(BALL_RADIUS);
 		setFitHeight(BALL_RADIUS);
-		setCurrentSpeed(BALL_SPEED);
+		startingSpeed = BALL_SPEED;
+		setCurrentSpeed(startingSpeed);
 	}
-	
+	public void setStartingSpeed(double speed){
+		startingSpeed = speed;
+	}
+	public double getStartingSpeed(){
+		return startingSpeed;
+	}
 	public boolean intersects(ScreenObject screenObject){
 		return intersects(screenObject.getBoundsInLocal());
 	}
@@ -45,7 +53,7 @@ public class Ball extends MovingScreenObject{
 	}
 	public void reset(){
 		super.reset();
-		setCurrentSpeed(BALL_SPEED);
+		setCurrentSpeed(startingSpeed);
 		Double normalizedDir = getRandomNormalizedDirection();
 		setDirection(normalizedDir.getX(), normalizedDir.getY());
 	}

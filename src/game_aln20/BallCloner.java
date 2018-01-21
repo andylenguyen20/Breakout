@@ -10,12 +10,10 @@ public class BallCloner extends PowerUp{
 		setImage(image);
 	}
 	
-	@Override
 	public void activate(GameDelegate gd) {
 		super.activate(gd);
 		gd.cloneBall();
 	}
-
 	@Override
 	public void revertChanges(GameDelegate gd) {
 		gd.removeBall();

@@ -1,22 +1,17 @@
 package game_aln20;
 
-
-import java.awt.geom.Point2D.Double;
-import java.util.Random;
-
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 
 public class Paddle extends MovingScreenObject{
 	public static final double PADDLE_WIDTH = 20;
 	public static final double PADDLE_HEIGHT = 75;
-	public static final double PADDLE_SPEED = 100;
+	public static final double PADDLE_SPEED = 200;
 	public static final String IMAGE_NAME = "paddle.gif";
 	
 	private boolean sticky;
 	private boolean abilityOn;
 	private Ball stuckBall;
-	//private Double ballDirection;
 	
 	public Paddle() {
 		super();
@@ -24,10 +19,13 @@ public class Paddle extends MovingScreenObject{
 		setImage(image);
 		setFitWidth(PADDLE_WIDTH);
 		setFitHeight(PADDLE_HEIGHT);
-		setDirection(0,0);
 		setCurrentSpeed(PADDLE_SPEED);
+		setDirection(0,0);
 		sticky = false;
 		abilityOn = false;
+	}
+	public void shrink(int level){
+		setFitHeight(PADDLE_HEIGHT - 10*level);
 	}
 	
 	public void update(Scene scene, double elapsedTime){
@@ -69,31 +67,25 @@ public class Paddle extends MovingScreenObject{
 		*/
 		return true;
 	}
-	public void reset(){
+	public void reset(int level){
 		super.reset();
 		setDirection(0,0);
 		setFitHeight(PADDLE_HEIGHT);
+		shrink(level);
 		sticky = false;
 		abilityOn = false;
 	}
-	public void activateSpecialAbility(GameDelegate gd){
-		if(abilityOn) return;
+	public void setAbilityOn(){
 		abilityOn = true;
-		Random random = new Random();
-		int num = random.nextInt(3);
+	}
+	public boolean abilityOn(){
+		return abilityOn;
+	}
+	public void activateSticky(){
 		sticky = true;
-		/*
-		switch(num){
-			case 0: gd.changePaddleSize(2);
-			case 1: gd.changePaddleSize(.5);
-			case 2: sticky = true;
-		}
-		*/
 	}
 	public void stickToBall(Ball ball){
 		if(stuckBall == null){
-			System.out.println("center");
-			//ballDirection = ball.getDirection();
 			ball.setPosition(getCenter().getX() - ball.getRadius(), getCenter().getY()- ball.getRadius());
 			ball.setCurrentSpeed(0);
 			stuckBall = ball;
@@ -107,10 +99,4 @@ public class Paddle extends MovingScreenObject{
 		gd.launchBallFromStickyPaddle(stuckBall, this);
 		stuckBall = null;
 	}
-	/*
-	public Double getBallDirection(){
-		return ballDirection;
-	}
-	*/
-
 }

@@ -36,8 +36,9 @@ public class Breakout extends Application implements GameDelegate{
 	public static final String RULES_FILE_NAME = "rules.txt";
 	public static final String END_GAME_TITLE = "GAME OVER";
 	
-	private Media background_song;
-	//public final Media transition_song = new Media(getClass().getResource("3.wav").toExternalForm());
+	//String path = new File("src/audio/Arcade_Funk.mp3").getAbsolutePath();
+	
+	//public final Media transition_song = new Media(getClass().getResource("Arcade_Funk.mp3").toExternalForm());
 	//new MediaPlayer(sound_3).play();
 	
 	private Stage myStage;
@@ -46,28 +47,33 @@ public class Breakout extends Application implements GameDelegate{
 	public static final int SCREEN_WIDTH = 850;
 	public static final int SCREEN_HEIGHT = 500;
 	
+	private Player[] players;
 	private Player player1, player2;
+	private Player recentlyHit, recentlyCemented;
 	private CopyOnWriteArrayList<Ball> balls;
-	private CopyOnWriteArrayList<Brick> bricks;
-	private ArrayList<PowerUp> powerUps;
+	private PowerUp[] onScreenPowerUps;
+	private PowerUp currentlyActivePowerUp;
 	
-	private int powerUpDelay = 30;
+	private boolean cementOn;
 	private int level = 1;
-	private Player recentlyHit;
 	
-	Text scorePanel;
-	Text livesPanel;
-	Timeline timeline;
+	private Text scorePanel;
+	private Text livesPanel;
 	
 	@Override
 	public void start(Stage stage) {
 		myStage = stage;
+		//Media background_song = new Media(getClass().getResource("Arcade_Funk.wav").toExternalForm());
 		//background_song = new Media(getClass().getResource("Arcade_Funk.mp3").toExternalForm());
 		// TODO Auto-generated method stub
-		powerUps = new ArrayList<>();
+		players = new Player[2];
+		players[0] = new Player();
+		players[1] = new Player();
+		player1 = players[0];
+		player2 = players[1];
+		player1.setOpponent(player2);
+		player2.setOpponent(player1);
 		balls = new CopyOnWriteArrayList<Ball>();
-		player1 = new Player();
-		player2 = new Player();
 		livesPanel = new Text(400, 10, player1.getLives() + "|Lives|" + player2.getLives());
 		scorePanel = new Text(400, 25, player1.getScore() + "|Score|" + player2.getScore());
 		root = new Group();
@@ -109,7 +115,7 @@ public class Breakout extends Application implements GameDelegate{
 	private Scene setUpGame(int width, int height, Paint background){
         Scene scene = new Scene(root, width, height, background);
         // make some shapes and set their properties
-        updateRoot();
+        refreshRoot();
         // respond to input
         scene.setOnKeyPressed(e -> {
 				handleKeyInput(e.getCode());
@@ -131,34 +137,45 @@ public class Breakout extends Application implements GameDelegate{
     	myScene = new Scene(vbox, 500, 150);
         myStage.setScene(myScene);
         myStage.show();
-        PauseTransition delay = new PauseTransition(Duration.seconds(5));
-        delay.setOnFinished( event -> myStage.close() );
-        delay.play();
 	}
-	private void updateRoot(){
+	private void refreshRoot(){
 		root.getChildren().clear();
 		root.getChildren().add(player1.getPaddle());
         root.getChildren().add(player2.getPaddle());
-        for(Brick brick : bricks){
-        	root.getChildren().add(brick);
+        for(Player player : players){
+        	for(Brick brick : player.getBricks()){
+        		root.getChildren().add(brick);
+        	}
         }
         for(Ball ball : balls){
-        	if(ball == null) continue;
         	root.getChildren().add(ball);
+        }
+        for(PowerUp powerup : onScreenPowerUps){
+        	root.getChildren().add(powerup);
         }
         root.getChildren().add(scorePanel);
         root.getChildren().add(livesPanel);
 	}
-	private void setUpLevel(int level){	   
+	private void setUpLevel(int level){
 		//new MediaPlayer(background_song).play();
+		/*
 		timeline = new Timeline(new KeyFrame(Duration.seconds(powerUpDelay), ev -> {
 			PowerUp powerUp = generateRandomPowerUp();
             powerUp.spawnInRandomLocation(SCREEN_WIDTH, SCREEN_HEIGHT);
             root.getChildren().add(powerUp);
             powerUps.add(powerUp);
 	    }));
+	    */
+		onScreenPowerUps = new PowerUp[level];
+		for(int i = 0; i < onScreenPowerUps.length; i++){
+			onScreenPowerUps[i] = generateRandomPowerUp();
+			onScreenPowerUps[i].spawnInRandomLocation(SCREEN_WIDTH, SCREEN_HEIGHT);
+            root.getChildren().add(onScreenPowerUps[i]);
+		}
+		/*
 	    timeline.setCycleCount(Animation.INDEFINITE);
 	    timeline.play();
+	    */
 		// file-reading information taken from http://www2.lawrence.edu/fast/GREGGJ/CMSC150/031Files/031Files.html
 		this.level = level;
 		String fileName = "levels/level_" + level + ".txt";
@@ -171,21 +188,26 @@ public class Breakout extends Application implements GameDelegate{
         }
         Ball startingBall = new Ball();
         startingBall.setStartingPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
+        startingBall.setStartingSpeed(startingBall.getCurrentSpeed() + level*20);
         startingBall.reset();
         //TODO: make this cleaner
         balls.clear();
         balls.add(startingBall);
-        player1.resetLives();
-        player2.resetLives();
-        updateRoot();
+        
+        for(Player player : players){
+        	player.resetLives();
+        	player.getPaddle().shrink(level);
+        }
+		recentlyHit = new Random().nextBoolean() ? player1 : player2;
+        refreshRoot();
 	}
 	
 	private void setPositionsFromFile(Scanner input){
-		player1.getPaddle().setStartingPosition(input.nextInt(), input.nextInt());
-		player1.getPaddle().reset();
-		player2.getPaddle().setStartingPosition(input.nextInt(), input.nextInt());
-		player2.getPaddle().reset();
-        bricks = new CopyOnWriteArrayList<Brick>();
+		for(Player player: players){
+			player.getPaddle().setStartingPosition(input.nextInt(), input.nextInt());
+			player.getPaddle().reset(level);
+			player.getBricks().clear();
+		}
         while(input.hasNextLine()) {
             int x = input.nextInt();
             int y = input.nextInt();
@@ -201,7 +223,12 @@ public class Breakout extends Application implements GameDelegate{
             	brick = new CementBrick();
             }
             brick.setPosition(x, y);
-            bricks.add(brick);
+            String player = input.next();
+            if(player.equals("p1")){
+            	player1.getBricks().add(brick);
+            }else if(player.equals("p2")){
+            	player2.getBricks().add(brick);
+            }
         }
 	}
 	private void step (double elapsedTime) {
@@ -215,30 +242,30 @@ public class Breakout extends Application implements GameDelegate{
 	
 	private void updateMovingObjects(double elapsedTime){
 		for(Ball ball : balls){
-			if(ball == null) continue;
 			ball.update(myScene,elapsedTime);
 		}
-		player1.getPaddle().update(myScene,elapsedTime);
-		player2.getPaddle().update(myScene,elapsedTime);
+		for(Player player : players){
+			player.getPaddle().update(myScene,elapsedTime);
+		}
 	}
 	private void checkCollisions(){
 		for(Ball ball : balls){
-			if(ball == null) continue;
-			for(int i = 0; i < bricks.size(); i++){
-				Brick brick = bricks.get(i);
-	        	boolean collision = brick.collide(ball);
-	        	if(collision && brick instanceof RandomPwrBrick){
-	        		((RandomPwrBrick) brick).activateRandomPowerUp(this);
-	        	}
-	        	if(collision && brick instanceof ExtraLifeBrick){
-	        		((ExtraLifeBrick) brick).awardExtraLife(this);
-	        	}
-	        }
-	        if(player1.getPaddle().redirectBall(ball)){
-	        	recentlyHit = player1;
-	        }else if(player2.getPaddle().redirectBall(ball)){
-	        	recentlyHit = player2;
-	        }
+			for(Player player : players){
+				for(Brick brick : player.getBricks()){
+					boolean collision = brick.collide(ball);
+		        	if(collision && brick instanceof RandomPwrBrick){
+		        		((RandomPwrBrick) brick).activateRandomPowerUp(this);
+		        		currentlyActivePowerUp = null;
+		        	}
+		        	if(collision && brick instanceof ExtraLifeBrick){
+		        		((ExtraLifeBrick) brick).awardExtraLife(this);
+		        		currentlyActivePowerUp = null;
+		        	}
+				}
+				if(player.getPaddle().redirectBall(ball)){
+					recentlyHit = player;
+				}
+			}
 		}
 	}
 	private void checkOffscreen(){
@@ -247,6 +274,7 @@ public class Breakout extends Application implements GameDelegate{
 	        if(ball.checkOffScreen(myScene) == -1){
 	        	player1.loseLife();
 	        	if(balls.size() > 1){
+	        		balls.remove(ball);
 	        		root.getChildren().remove(ball);
 	        	}else{
 	        		ball.reset();
@@ -254,6 +282,7 @@ public class Breakout extends Application implements GameDelegate{
 	        }else if(ball.checkOffScreen(myScene) == 1){
 	        	player2.loseLife();
 	        	if(balls.size() > 1){
+	        		balls.remove(ball);
 	        		root.getChildren().remove(ball);
 	        	}else{
 	        		ball.reset();
@@ -265,45 +294,56 @@ public class Breakout extends Application implements GameDelegate{
 		//http://www.java2s.com/Code/Java/JavaFX/UsingLabeltodisplayText.htm
 		livesPanel.setText(player1.getLives() + "|Lives|" + player2.getLives());
 		scorePanel.setText(player1.getScore() + "|Score|" + player2.getScore());
-        if(player1.getLives() == 0){
-        	System.out.println("hi");
-        	player2.incrementScore();
-        	root.getChildren().clear();
-        	if(level == 3){
-        		endGameScreen();
-        	}else{
-        		setUpLevel(++level);
-        	}
-			updateRoot();
-        }else if(player2.getLives() == 0){
-        	player1.incrementScore();
-        	root.getChildren().clear();
-        	if(level == 3){
-        		endGameScreen();
-        	}else{
-        		setUpLevel(++level);
-        	}
-			updateRoot();
-        }
+		for(Player player : players){
+			if(player.getLives() == 0){
+				player.getOpponent().incrementScore();
+				root.getChildren().clear();
+				if(level == 3){
+					endGameScreen();
+				}else{
+					setUpLevel(++level);
+				}
+				refreshRoot();
+			}
+		}
 	}
 	
 	private void adjustPaddlesIfNeeded(){
-		if(player1.getLives() == 1){
-			player1.getPaddle().activateSpecialAbility(this);
-		}
-		if(player2.getLives() == 1){
-			player2.getPaddle().activateSpecialAbility(this);
+		for(Player player : players){
+			if(player.getLives() == 1 && !player.getPaddle().abilityOn()){
+				System.out.println("hi");
+				int rand = new Random().nextInt(3);
+				switch(rand){
+				case 0: player.getPaddle().setFitHeight(player.getPaddle().getFitHeight() * 1.5);
+					player.getPaddle().setAbilityOn();
+					break;
+				case 1: player.getOpponent().getPaddle().setFitHeight(player.getOpponent().getPaddle().getFitHeight() / 1.5);
+					player.getOpponent().getPaddle().setAbilityOn();
+					break;
+				case 2: player.getPaddle().activateSticky();
+					player.getPaddle().setAbilityOn();
+					break;
+				}
+			}
 		}
 	}
 	private void checkPowerUps(){
-		for(Ball ball: balls){
-			if(ball == null) continue;
-			for(int i = 0; i < powerUps.size(); i++){
-	        	if(ball.intersects(powerUps.get(i)) && powerUps.get(i).isActive()){
-	        		powerUps.get(i).disable();
-	        		powerUps.get(i).activate(this);
-	        	}
-	        }
+		for(Ball ball : balls){
+			for(int i = 0; i < onScreenPowerUps.length; i++){
+				PowerUp powerUp = onScreenPowerUps[i];
+				if(ball.intersects(powerUp) && powerUp.isVisible()){
+					if(currentlyActivePowerUp != null){
+						currentlyActivePowerUp.disable(this);
+					}
+					powerUp.setVisible(false);
+					powerUp.activate(this);
+					root.getChildren().remove(powerUp);
+					currentlyActivePowerUp = powerUp;
+					onScreenPowerUps[i] = generateRandomPowerUp();
+					onScreenPowerUps[i].spawnInRandomLocation(SCREEN_WIDTH, SCREEN_HEIGHT);
+		            root.getChildren().add(onScreenPowerUps[i]);
+				}
+			}
 		}
 	}
 	
@@ -370,10 +410,6 @@ public class Breakout extends Application implements GameDelegate{
 	}
 	@Override
 	public void changePaddleSpeed(double multiplier) {
-		if(recentlyHit == null){
-			Random random = new Random();
-			recentlyHit = random.nextBoolean() ? player1 : player2;
-		}
 		recentlyHit.getPaddle().setCurrentSpeed(recentlyHit.getPaddle().getCurrentSpeed() * multiplier);
 	}
 	@Override
@@ -381,6 +417,7 @@ public class Breakout extends Application implements GameDelegate{
 		Ball referenceBall = balls.get(0);
 		Ball clone = new Ball();
 		clone.setStartingPosition(referenceBall.getX(), referenceBall.getY());
+		clone.setCurrentSpeed(referenceBall.getStartingSpeed());
 		clone.reset();
 		balls.add(clone);
 		root.getChildren().add(clone);
@@ -393,8 +430,8 @@ public class Breakout extends Application implements GameDelegate{
 	}
 	@Override
 	public void activateRandomPowerUp(){
-		PowerUp randomPowerUp = generateRandomPowerUp();
-		randomPowerUp.activate(this);
+		currentlyActivePowerUp = generateRandomPowerUp();
+		currentlyActivePowerUp.activate(this);
 	}
 	public static void main (String[] args) {
         launch(args);
@@ -414,20 +451,15 @@ public class Breakout extends Application implements GameDelegate{
 	}
 	@Override
 	public void awardExtraLife(){
-		if(recentlyHit == null){
-			Random random = new Random();
-			recentlyHit = random.nextBoolean() ? player1 : player2;
-		}
-		if(recentlyHit == player1){
-			player1.addLife();
-		}else{
-			player2.addLife();
+		for(Player player : players){
+			if(recentlyHit == player) player.addLife();
 		}
 	}
 	@Override
 	public ArrayList<Brick> turnBricksIntoCement(){
+		if(cementOn) return null;
 		ArrayList<Brick> copy = new ArrayList<Brick>();
-		for(Brick brick : bricks){
+		for(Brick brick : recentlyHit.getBricks()){
 			if(brick instanceof MultiHitBrick){
 				if (((MultiHitBrick) brick).isActive()){
 					copy.add(brick);
@@ -435,8 +467,9 @@ public class Breakout extends Application implements GameDelegate{
 					cb.setPosition(brick.getX(), brick.getY());
 					root.getChildren().add(cb);
 					root.getChildren().remove(brick);
-					bricks.remove(brick);
-					bricks.add(cb);
+					recentlyHit.getBricks().remove(brick);
+					recentlyHit.getBricks().add(cb);
+					recentlyCemented = recentlyHit;
 				}
 			}
 		}
@@ -444,9 +477,9 @@ public class Breakout extends Application implements GameDelegate{
 	}
 	@Override
 	public void revertBricksToNormal(ArrayList<Brick> copy){
-		root.getChildren().removeAll(bricks);
-		bricks.clear();
-		bricks.addAll(copy);
+		root.getChildren().removeAll(recentlyCemented.getBricks());
+		recentlyCemented.getBricks().clear();
+		recentlyCemented.getBricks().addAll(copy);
 		root.getChildren().addAll(copy);
 	}
 
