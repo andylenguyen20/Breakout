@@ -15,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -123,7 +124,7 @@ public class Breakout extends Application implements GameDelegate{
         return scene;
 	}
 	private void endGameScreen(){
-		VBox vbox = new VBox();
+		HBox hbox = new HBox();
 		Text text;
 		if(player1.getScore() > player2.getScore()){
 			text = new Text("Player 1 wins!");
@@ -132,9 +133,10 @@ public class Breakout extends Application implements GameDelegate{
 		}else{
 			text = new Text("It's a Draw!");
 		}
-        vbox.getChildren().add(text);
+        hbox.getChildren().add(text);
+        hbox.setStyle("-fx-background: #FF3F3F;");
     	myStage.setTitle(END_GAME_TITLE);
-    	myScene = new Scene(vbox, 500, 150);
+    	myScene = new Scene(hbox, 500, 150);
         myStage.setScene(myScene);
         myStage.show();
 	}
@@ -158,24 +160,12 @@ public class Breakout extends Application implements GameDelegate{
 	}
 	private void setUpLevel(int level){
 		//new MediaPlayer(background_song).play();
-		/*
-		timeline = new Timeline(new KeyFrame(Duration.seconds(powerUpDelay), ev -> {
-			PowerUp powerUp = generateRandomPowerUp();
-            powerUp.spawnInRandomLocation(SCREEN_WIDTH, SCREEN_HEIGHT);
-            root.getChildren().add(powerUp);
-            powerUps.add(powerUp);
-	    }));
-	    */
 		onScreenPowerUps = new PowerUp[level];
 		for(int i = 0; i < onScreenPowerUps.length; i++){
 			onScreenPowerUps[i] = generateRandomPowerUp();
 			onScreenPowerUps[i].spawnInRandomLocation(SCREEN_WIDTH, SCREEN_HEIGHT);
             root.getChildren().add(onScreenPowerUps[i]);
 		}
-		/*
-	    timeline.setCycleCount(Animation.INDEFINITE);
-	    timeline.play();
-	    */
 		// file-reading information taken from http://www2.lawrence.edu/fast/GREGGJ/CMSC150/031Files/031Files.html
 		this.level = level;
 		String fileName = "levels/level_" + level + ".txt";
@@ -300,6 +290,7 @@ public class Breakout extends Application implements GameDelegate{
 				root.getChildren().clear();
 				if(level == 3){
 					endGameScreen();
+					return;
 				}else{
 					setUpLevel(++level);
 				}
@@ -311,7 +302,6 @@ public class Breakout extends Application implements GameDelegate{
 	private void adjustPaddlesIfNeeded(){
 		for(Player player : players){
 			if(player.getLives() == 1 && !player.getPaddle().abilityOn()){
-				System.out.println("hi");
 				int rand = new Random().nextInt(3);
 				switch(rand){
 				case 0: player.getPaddle().setFitHeight(player.getPaddle().getFitHeight() * 1.5);

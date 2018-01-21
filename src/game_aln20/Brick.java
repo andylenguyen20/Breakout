@@ -17,15 +17,13 @@ public abstract class Brick extends ScreenObject{
 		}
 		// hit top or bottom
 		if(ball.getCenter().getX() >= getLeft() && ball.getCenter().getX() <= getRight()){
-			System.out.println("hit top or bottom side");
 			ball.setDirection(ball.getDirection().getX(), -ball.getDirection().getY());
 		}// hit left or right
 		else if(ball.getCenter().getY() <= getBottom() && ball.getCenter().getY() >= getTop()){
-			System.out.println("hit left or right side");
 			ball.setDirection(-ball.getDirection().getX(), ball.getDirection().getY());
-		}else{
-			System.out.println("collide method failed");
-			return false;
+		}// hit corner
+		else{
+			ball.setDirection(-ball.getDirection().getX(), -ball.getDirection().getY());
 		}
 		return true;
 	}
