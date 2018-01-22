@@ -26,9 +26,6 @@ public class Paddle extends MovingScreenObject{
 		sticky = false;
 		abilityOn = false;
 	}
-	public void shrink(int level){
-		setFitHeight(DEFAULT_HEIGHT - 5*level);
-	}
 	public void setStartingHeight(double height){
 		startingHeight = height;
 	}
@@ -46,12 +43,10 @@ public class Paddle extends MovingScreenObject{
 		if(!ball.intersects(this)){
 			return false;
 		}
-		
 		if(sticky) {
 			stickToBall(ball);
-			return false;
+			return true;
 		}
-		
 		if(ball.getDirection().getY() > 0 && ball.getCenter().getY() < this.getCenter().getY()){
 			ball.setDirection(-ball.getDirection().getX(), -ball.getDirection().getY());
 		}else if(ball.getDirection().getY() < 0 && ball.getCenter().getY() < this.getCenter().getY()){
@@ -59,24 +54,12 @@ public class Paddle extends MovingScreenObject{
 		}else{
 			ball.setDirection(-ball.getDirection().getX(), ball.getDirection().getY());
 		}
-		
-		/*
-		if(ball.getCenter().getX() >= getLeft() && ball.getCenter().getX() <= getRight()){
-			System.out.println("hit top or bottom side of paddle");
-			ball.setDirection(ball.getDirection().getX(), -ball.getDirection().getY());
-		}// hit left or right
-		else if(ball.getCenter().getY() <= getBottom() && ball.getCenter().getY() >= getTop()){
-			System.out.println("hit left or right side of paddle");
-			ball.setDirection(-ball.getDirection().getX(), ball.getDirection().getY());
-		}
-		*/
 		return true;
 	}
-	public void reset(int level){
+	public void reset(){
 		super.reset();
 		setDirection(0,0);
 		setFitHeight(startingHeight);
-		shrink(level);
 		sticky = false;
 		abilityOn = false;
 	}
@@ -100,7 +83,6 @@ public class Paddle extends MovingScreenObject{
 	}
 	public void launchBall(GameDelegate gd){
 		if(!sticky || stuckBall == null) return;
-		System.out.println("launched");
 		gd.launchBallFromStickyPaddle(stuckBall, this);
 		stuckBall = null;
 	}

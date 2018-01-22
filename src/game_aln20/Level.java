@@ -8,7 +8,7 @@ import java.awt.geom.Point2D.Double;
 
 public class Level {
 	private int level;
-	
+	private GameDelegate context;
 	public Level(int level){
 		this.level = level;
 	}

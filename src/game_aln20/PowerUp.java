@@ -34,5 +34,5 @@ public abstract class PowerUp extends ScreenObject{
 	    timeline.setCycleCount(1);
 	    timeline.play();
 	}
-	public abstract void revertChanges(GameDelegate gd);
+	protected abstract void revertChanges(GameDelegate gd);
 }
