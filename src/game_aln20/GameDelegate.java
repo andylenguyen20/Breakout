@@ -9,7 +9,6 @@ public interface GameDelegate {
 	void cloneBall();
 	void removeBall();
 	void activateRandomPowerUp();
-	void changePaddleSize(double multiplier);
 	void launchBallFromStickyPaddle(Ball ball, Paddle paddle);
 	void awardExtraLife();
 	CopyOnWriteArrayList<Brick> turnBricksIntoCement();

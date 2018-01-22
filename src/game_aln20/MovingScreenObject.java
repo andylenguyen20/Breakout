@@ -16,6 +16,7 @@ public abstract class MovingScreenObject extends ScreenObject{
 	}
 	public void reset(){
 		setPosition(startingPos.getX(), startingPos.getY());
+		System.out.println(startingPos.getX() + " " + startingPos.getY());
 	}
 	public void update(double elapsedTime){
 		setPosition(getX() + currentSpeed * direction.getX() * elapsedTime,

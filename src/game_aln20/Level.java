@@ -16,10 +16,10 @@ public class Level {
 		return level;
 	}
 	public double getBallSpeedOffset(){
-		return level * 50;
+		return level * 25;
 	}
-	public double getPaddleSpeedOffset(){
-		return -level * 7.5;
+	public double getPaddleSizeOffset(){
+		return -(level * 12.5);
 	}
 	public PowerUp[] getFreshPowerUpsArray(){
 		return new PowerUp[level];

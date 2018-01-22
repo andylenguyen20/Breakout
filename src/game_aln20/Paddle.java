@@ -51,7 +51,9 @@ public class Paddle extends MovingScreenObject{
 			ball.setDirection(-ball.getDirection().getX(), -ball.getDirection().getY());
 		}else if(ball.getDirection().getY() < 0 && ball.getCenter().getY() < this.getCenter().getY()){
 			ball.setDirection(-ball.getDirection().getX(), ball.getDirection().getY());
-		}else{
+		}else if(ball.getDirection().getY() < 0 && ball.getCenter().getY() > this.getCenter().getY()){
+			ball.setDirection(-ball.getDirection().getX(), -ball.getDirection().getY());
+		}else if(ball.getDirection().getY() > 0 && ball.getCenter().getY() > this.getCenter().getY()){
 			ball.setDirection(-ball.getDirection().getX(), ball.getDirection().getY());
 		}
 		return true;

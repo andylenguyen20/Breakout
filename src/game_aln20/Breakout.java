@@ -1,6 +1,9 @@
 package game_aln20;
 
 import java.io.File;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -17,6 +20,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -24,7 +28,16 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import java.applet.Applet;
 import java.awt.geom.Point2D.Double;
+import java.net.URL;
 
 public class Breakout extends Application implements GameDelegate{
 	public static final Paint BACKGROUND = Color.AZURE;
@@ -66,12 +79,30 @@ public class Breakout extends Application implements GameDelegate{
 		statusDisplay = new Label();
 		statusDisplay.setTranslateX(SCREEN_WIDTH/2);
 	}
+	private void playMusic(){
+		String filename = "audio/Arcade_Funk.wav";
+		//String filename = "audio/2001.mid";
+		URL url = null;
+		try {
+			File file = new File(filename);
+		if (file.canRead()) url = file.toURI().toURL();
+		}
+		catch (MalformedURLException e) { e.printStackTrace(); }
+		// URL url = StdAudio.class.getResource(filename);
+		if (url == null) throw new RuntimeException("audio " + filename + " not found");
+		//AudioClip clip = Applet.newAudioClip(url);
+		AudioClip clip = new AudioClip(url.toString());
+		clip.setCycleCount(Timeline.INDEFINITE);
+		clip.play();
+		//clip.loop();
+	}
 	private void setScene(String title){
 		myStage.setScene(myScene);
         myStage.setTitle(title);
         myStage.show();
 	}
 	private void initializeScreenObjects(){
+		
 		players = new Player[2];
 		players[0] = new Player();
 		players[1] = new Player();
@@ -167,6 +198,7 @@ public class Breakout extends Application implements GameDelegate{
 			ball.reset();
 		}
 		refreshRoot();
+		playMusic();
 	}
 	private void setUpFromLevel(int level){
 		myLevel = new Level(level);
@@ -176,10 +208,10 @@ public class Breakout extends Application implements GameDelegate{
 		Double[] paddlePositions = myLevel.getPaddlePositions(players.length);
 		for(int i = 0; i < players.length; i++){
 			players[i].getPaddle().setStartingPosition(paddlePositions[i].getX(), paddlePositions[i].getY());
-			players[i].getPaddle().setStartingHeight(players[i].getPaddle().getFitHeight() + myLevel.getPaddleSpeedOffset());
+			players[i].getPaddle().setStartingHeight(Paddle.DEFAULT_HEIGHT + myLevel.getPaddleSizeOffset());
 		}
 		Ball startingBall = new Ball();
-        startingBall.setStartingSpeed(startingBall.getCurrentSpeed() + myLevel.getBallSpeedOffset());
+        startingBall.setStartingSpeed(Ball.DEFAULT_SPEED + myLevel.getBallSpeedOffset());
         balls.add(startingBall);
 	}
 
@@ -242,6 +274,7 @@ public class Breakout extends Application implements GameDelegate{
 
 	private void resetBallIfNeeded(Ball ball){
 		if(balls.size() == 1){
+			ball.setStartingPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
 			ball.reset();
     	}else{
     		balls.remove(ball);
@@ -276,6 +309,7 @@ public class Breakout extends Application implements GameDelegate{
 					break;
 			case 2: player.getPaddle().setAbilityOn();
 					player.getPaddle().activateSticky();
+					//check starting position of ball after death
 					break;
 			}
 		}
@@ -369,10 +403,7 @@ public class Breakout extends Application implements GameDelegate{
 		currentlyActivePowerUp = generateRandomPowerUp();
 		currentlyActivePowerUp.activate(this);
 	}
-	@Override
-	public void changePaddleSize(double multiplier) {
-		player1.getPaddle().setFitHeight(player1.getPaddle().getFitHeight() * multiplier);
-	}
+	
 	@Override
 	public void launchBallFromStickyPaddle(Ball ball, Paddle paddle){
 		if(paddle == player1.getPaddle()){
@@ -394,8 +425,9 @@ public class Breakout extends Application implements GameDelegate{
 		recentlyHit.setCemented(true);
 		CopyOnWriteArrayList<Brick> copy = new CopyOnWriteArrayList<Brick>();
 		for(Brick brick : recentlyHit.getBricks()){
-			if(brick instanceof MultiHitBrick){
-				if (((MultiHitBrick) brick).isActive()){
+			boolean activeMultiHit = brick instanceof MultiHitBrick && ((MultiHitBrick) brick).isActive();
+			boolean cementBrick = brick instanceof CementBrick;
+			if (activeMultiHit || cementBrick){
 					copy.add(brick);
 					CementBrick cb = new CementBrick();
 					cb.setPosition(brick.getX(), brick.getY());
@@ -403,8 +435,8 @@ public class Breakout extends Application implements GameDelegate{
 					root.getChildren().remove(brick);
 					recentlyHit.getBricks().remove(brick);
 					recentlyHit.getBricks().add(cb);
-				}
 			}
+			
 		}
 		return copy;
 	}
