@@ -5,26 +5,23 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
-import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
-import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.awt.geom.Point2D.Double;
 
 public class Breakout extends Application implements GameDelegate{
 	public static final Paint BACKGROUND = Color.AZURE;
@@ -50,23 +47,30 @@ public class Breakout extends Application implements GameDelegate{
 	
 	private Player[] players;
 	private Player player1, player2;
-	private Player recentlyHit, recentlyCemented;
+	private Player recentlyHit;
 	private CopyOnWriteArrayList<Ball> balls;
 	private PowerUp[] onScreenPowerUps;
 	private PowerUp currentlyActivePowerUp;
 	
-	private boolean cementOn;
-	private int level = 1;
+	private Level myLevel;
 	
-	private Text scorePanel;
-	private Text livesPanel;
+
+	private Text splashScreen;
 	
 	@Override
 	public void start(Stage stage) {
 		myStage = stage;
-		//Media background_song = new Media(getClass().getResource("Arcade_Funk.wav").toExternalForm());
-		//background_song = new Media(getClass().getResource("Arcade_Funk.mp3").toExternalForm());
-		// TODO Auto-generated method stub
+		root = new Group();
+		initializeScreenObjects();
+		setUpIntroScreen();
+		splashScreen = new Text(400, 10, "3|Lives|3\n0|Score|0\nLevel : 1");
+	}
+	private void setScene(String title){
+		myStage.setScene(myScene);
+        myStage.setTitle(title);
+        myStage.show();
+	}
+	private void initializeScreenObjects(){
 		players = new Player[2];
 		players[0] = new Player();
 		players[1] = new Player();
@@ -75,37 +79,34 @@ public class Breakout extends Application implements GameDelegate{
 		player1.setOpponent(player2);
 		player2.setOpponent(player1);
 		balls = new CopyOnWriteArrayList<Ball>();
-		livesPanel = new Text(400, 10, player1.getLives() + "|Lives|" + player2.getLives());
-		scorePanel = new Text(400, 25, player1.getScore() + "|Score|" + player2.getScore());
-		root = new Group();
-		setUpLevel(1);
+	}
+	private void setUpIntroScreen(){
 		VBox vbox = new VBox();
-	
 		Scanner input = null;
         try {
             input = new Scanner(new File(RULES_FILE_NAME));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
- 
         while(input.hasNextLine()){
             vbox.getChildren().add(new Text(input.nextLine()));
         }
     	Button button = new Button(SUBMIT_MSG);
     	button.setOnAction(action -> {
-			startGameFromScene();
+			startUpGameScreen();
+			startNewLevel(1);
+			refreshRoot();
     	});
     	vbox.getChildren().add(button);
-    	myStage.setTitle(START_TITLE);
     	myScene = new Scene(vbox, 500, 150);
-        myStage.setScene(myScene);
-        myStage.show();
+    	setScene(START_TITLE);
 	}
-	private void startGameFromScene(){
-		myScene = setUpGame(SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND);
-		myStage.setScene(myScene);
-        myStage.setTitle(GAME_TITLE);
-        myStage.show();
+	private void startUpGameScreen(){
+		myScene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND);
+		myScene.setOnKeyPressed(e -> {
+			handleKeyInput(e.getCode());
+		});
+		setScene(GAME_TITLE);
         KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY),
                                       e -> step(SECOND_DELAY));
         Timeline animation = new Timeline();
@@ -113,17 +114,7 @@ public class Breakout extends Application implements GameDelegate{
         animation.getKeyFrames().add(frame);
         animation.play();
 	}
-	private Scene setUpGame(int width, int height, Paint background){
-        Scene scene = new Scene(root, width, height, background);
-        // make some shapes and set their properties
-        refreshRoot();
-        // respond to input
-        scene.setOnKeyPressed(e -> {
-				handleKeyInput(e.getCode());
-		});
-        return scene;
-	}
-	private void endGameScreen(){
+	private void startUpEndGameScreen(){
 		HBox hbox = new HBox();
 		Text text;
 		if(player1.getScore() > player2.getScore()){
@@ -135,19 +126,14 @@ public class Breakout extends Application implements GameDelegate{
 		}
         hbox.getChildren().add(text);
         hbox.setStyle("-fx-background: #FF3F3F;");
-    	myStage.setTitle(END_GAME_TITLE);
     	myScene = new Scene(hbox, 500, 150);
-        myStage.setScene(myScene);
-        myStage.show();
+        setScene(END_GAME_TITLE);
 	}
 	private void refreshRoot(){
 		root.getChildren().clear();
-		root.getChildren().add(player1.getPaddle());
-        root.getChildren().add(player2.getPaddle());
         for(Player player : players){
-        	for(Brick brick : player.getBricks()){
-        		root.getChildren().add(brick);
-        	}
+        	root.getChildren().add(player.getPaddle());
+        	root.getChildren().addAll(player.getBricks());
         }
         for(Ball ball : balls){
         	root.getChildren().add(ball);
@@ -155,79 +141,59 @@ public class Breakout extends Application implements GameDelegate{
         for(PowerUp powerup : onScreenPowerUps){
         	root.getChildren().add(powerup);
         }
-        root.getChildren().add(scorePanel);
-        root.getChildren().add(livesPanel);
+        root.getChildren().add(splashScreen);
 	}
-	private void setUpLevel(int level){
-		//new MediaPlayer(background_song).play();
-		onScreenPowerUps = new PowerUp[level];
+	private void startNewLevel(int level){
+		for(Player player : players){
+        	player.getBricks().clear();
+        }
+		balls.clear();
+		setUpFromLevel(level);
 		for(int i = 0; i < onScreenPowerUps.length; i++){
 			onScreenPowerUps[i] = generateRandomPowerUp();
 			onScreenPowerUps[i].spawnInRandomLocation(SCREEN_WIDTH, SCREEN_HEIGHT);
-            root.getChildren().add(onScreenPowerUps[i]);
 		}
-		// file-reading information taken from http://www2.lawrence.edu/fast/GREGGJ/CMSC150/031Files/031Files.html
-		this.level = level;
-		String fileName = "levels/level_" + level + ".txt";
-        Scanner input = null;
-        try {
-            input = new Scanner(new File(fileName));
-            setPositionsFromFile(input);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        Ball startingBall = new Ball();
-        startingBall.setStartingPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
-        startingBall.setStartingSpeed(startingBall.getCurrentSpeed() + level*20);
-        startingBall.reset();
-        //TODO: make this cleaner
-        balls.clear();
-        balls.add(startingBall);
-        
-        for(Player player : players){
-        	player.resetLives();
-        	player.getPaddle().shrink(level);
-        }
 		recentlyHit = new Random().nextBoolean() ? player1 : player2;
-        refreshRoot();
-	}
-	
-	private void setPositionsFromFile(Scanner input){
-		for(Player player: players){
-			player.getPaddle().setStartingPosition(input.nextInt(), input.nextInt());
-			player.getPaddle().reset(level);
-			player.getBricks().clear();
+		for(Player player : players){
+			player.resetLives();
+			player.getPaddle().reset();
 		}
-        while(input.hasNextLine()) {
-            int x = input.nextInt();
-            int y = input.nextInt();
-            Brick brick;
-            String type = input.next();
-            if(type.equals("multihit")){
-            	brick = generateRandomMultiHitBrick();
-            }else if(type.equals("randpwr")){
-            	brick = new RandomPwrBrick();
-            }else if(type.equals("extralife")){
-            	brick = new ExtraLifeBrick();
-            }else{
-            	brick = new CementBrick();
-            }
-            brick.setPosition(x, y);
-            String player = input.next();
-            if(player.equals("p1")){
-            	player1.getBricks().add(brick);
-            }else if(player.equals("p2")){
-            	player2.getBricks().add(brick);
-            }
-        }
+		for(Ball ball : balls){
+			ball.setStartingPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
+			ball.reset();
+		}
+		refreshRoot();
 	}
+	private void setUpFromLevel(int level){
+		myLevel = new Level(level);
+		onScreenPowerUps = myLevel.getFreshPowerUpsArray();
+		player1.getBricks().addAll(myLevel.getBricks("p1"));
+		player2.getBricks().addAll(myLevel.getBricks("p2"));
+		Double[] paddlePositions = myLevel.getPaddlePositions(players.length);
+		for(int i = 0; i < players.length; i++){
+			players[i].getPaddle().setStartingPosition(paddlePositions[i].getX(), paddlePositions[i].getY());
+			players[i].getPaddle().setStartingHeight(players[i].getPaddle().getFitHeight() + myLevel.getPaddleSpeedOffset());
+		}
+		Ball startingBall = new Ball();
+        startingBall.setStartingSpeed(startingBall.getCurrentSpeed() + myLevel.getBallSpeedOffset());
+        balls.add(startingBall);
+	}
+
+	private void updateSplashScreen(){
+		// inspired from http://www.java2s.com/Code/Java/JavaFX/UsingLabeltodisplayText.htm
+		splashScreen.setText(player1.getLives() + "|Lives|" + player2.getLives() + "\n" + player1.getScore() + "|Score|" + player2.getScore() + "\nLevel: " + myLevel.getLevel());
+	}
+
 	private void step (double elapsedTime) {
 		updateMovingObjects(elapsedTime);
+		
 		checkCollisions();
+		
 		checkOffscreen();
 		checkLives();
         checkPowerUps();
         adjustPaddlesIfNeeded();
+        updateSplashScreen();
     }
 	
 	private void updateMovingObjects(double elapsedTime){
@@ -260,39 +226,36 @@ public class Breakout extends Application implements GameDelegate{
 	}
 	private void checkOffscreen(){
 		for(Ball ball : balls){
-			ball.redirectOffScreen(myScene);
-	        if(ball.checkOffScreen(myScene) == -1){
+			int offScreenStatus = ball.getOffscreenStatus(myScene);
+	        if(offScreenStatus == -1){
 	        	player1.loseLife();
-	        	if(balls.size() > 1){
-	        		balls.remove(ball);
-	        		root.getChildren().remove(ball);
-	        	}else{
-	        		ball.reset();
-	        	}
-	        }else if(ball.checkOffScreen(myScene) == 1){
+	        	resetBallIfNeeded(ball);
+	        }else if(offScreenStatus == 1){
 	        	player2.loseLife();
-	        	if(balls.size() > 1){
-	        		balls.remove(ball);
-	        		root.getChildren().remove(ball);
-	        	}else{
-	        		ball.reset();
-	        	}
+	        	resetBallIfNeeded(ball);
 	        }
 		}
 	}
+
+	private void resetBallIfNeeded(Ball ball){
+		if(balls.size() > 1){
+    		balls.remove(ball);
+    		root.getChildren().remove(ball);
+    	}else{
+    		ball.reset();
+    	}
+	}
+	
 	private void checkLives(){
-		//http://www.java2s.com/Code/Java/JavaFX/UsingLabeltodisplayText.htm
-		livesPanel.setText(player1.getLives() + "|Lives|" + player2.getLives());
-		scorePanel.setText(player1.getScore() + "|Score|" + player2.getScore());
 		for(Player player : players){
 			if(player.getLives() == 0){
 				player.getOpponent().incrementScore();
 				root.getChildren().clear();
-				if(level == 3){
-					endGameScreen();
+				if(myLevel.getLevel() == 3){
+					startUpEndGameScreen();
 					return;
 				}else{
-					setUpLevel(++level);
+					startNewLevel(myLevel.getLevel() + 1);
 				}
 				refreshRoot();
 			}
@@ -347,11 +310,11 @@ public class Breakout extends Application implements GameDelegate{
 				break;
 			case S: player1.getPaddle().setDirection(0,1);
 				break;
-			case DIGIT1: setUpLevel(1);
+			case DIGIT1: startNewLevel(1);
 				break;
-			case DIGIT2: setUpLevel(2);
+			case DIGIT2: startNewLevel(2);
 				break;
-			case DIGIT3: setUpLevel(3);
+			case DIGIT3: startNewLevel(3);
 				break;
 			case L: player1.addLife();
 				break;
@@ -377,18 +340,14 @@ public class Breakout extends Application implements GameDelegate{
 			break;
 		}
 	}
-    private Brick generateRandomMultiHitBrick(){
-    	Brick[] options = new Brick[]
-                {new MultiHitBrick(1), 
-                		new MultiHitBrick(2),
-                        new MultiHitBrick(3)};
-        return options[(int)(Math.random() * options.length)];
-    }
     private PowerUp generateRandomPowerUp(){
     	PowerUp[] options = new PowerUp[]
-                { new PaddleSpeedAdjuster(1.5), new PaddleSpeedAdjuster(0.75),
-                	new BallSpeedAdjuster(1.5), new BallSpeedAdjuster(0.75),
-                	new BallCloner(), new BrickCementer()};
+                { new PaddleSpeedAdjuster(SpeedAdjuster.FASTER_SPEED_MULTIPLIER), 
+                	new PaddleSpeedAdjuster(SpeedAdjuster.SLOWER_SPEED_MULTIPLIER),
+                	new BallSpeedAdjuster(SpeedAdjuster.FASTER_SPEED_MULTIPLIER),
+                	new BallSpeedAdjuster(SpeedAdjuster.SLOWER_SPEED_MULTIPLIER),
+                	new BallCloner(), 
+                	new BrickCementer()};
         return options[(int)(Math.random() * options.length)];
     }
     
@@ -407,7 +366,7 @@ public class Breakout extends Application implements GameDelegate{
 		Ball referenceBall = balls.get(0);
 		Ball clone = new Ball();
 		clone.setStartingPosition(referenceBall.getX(), referenceBall.getY());
-		clone.setCurrentSpeed(referenceBall.getStartingSpeed());
+		clone.setStartingSpeed(referenceBall.getStartingSpeed());
 		clone.reset();
 		balls.add(clone);
 		root.getChildren().add(clone);
@@ -446,9 +405,10 @@ public class Breakout extends Application implements GameDelegate{
 		}
 	}
 	@Override
-	public ArrayList<Brick> turnBricksIntoCement(){
-		if(cementOn) return null;
-		ArrayList<Brick> copy = new ArrayList<Brick>();
+	public CopyOnWriteArrayList<Brick> turnBricksIntoCement(){
+		if(recentlyHit.isCemented()) return null;
+		recentlyHit.setCemented(true);
+		CopyOnWriteArrayList<Brick> copy = new CopyOnWriteArrayList<Brick>();
 		for(Brick brick : recentlyHit.getBricks()){
 			if(brick instanceof MultiHitBrick){
 				if (((MultiHitBrick) brick).isActive()){
@@ -459,18 +419,24 @@ public class Breakout extends Application implements GameDelegate{
 					root.getChildren().remove(brick);
 					recentlyHit.getBricks().remove(brick);
 					recentlyHit.getBricks().add(cb);
-					recentlyCemented = recentlyHit;
 				}
 			}
 		}
+		
 		return copy;
 	}
 	@Override
-	public void revertBricksToNormal(ArrayList<Brick> copy){
-		root.getChildren().removeAll(recentlyCemented.getBricks());
-		recentlyCemented.getBricks().clear();
-		recentlyCemented.getBricks().addAll(copy);
-		root.getChildren().addAll(copy);
+	public void revertBricksToNormal(CopyOnWriteArrayList<Brick> copy){
+		for(Player player : players){
+			if(!player.isCemented()){
+				continue;
+			}
+			root.getChildren().removeAll(player.getBricks());
+			player.getBricks().clear();
+			player.getBricks().addAll(copy);
+			player.setCemented(false);
+			root.getChildren().addAll(player.getBricks());
+		}
 	}
 
 }

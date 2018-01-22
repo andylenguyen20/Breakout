@@ -1,11 +1,11 @@
 package game_aln20;
 
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javafx.scene.image.Image;
 
 public class BrickCementer extends PowerUp{
-	private ArrayList<Brick> originalBricks;
+	private CopyOnWriteArrayList<Brick> bricksClone;
 	public static final String IMAGE_NAME = "brick_cementer_pwr.gif";
 	
 	public BrickCementer(){
@@ -16,12 +16,12 @@ public class BrickCementer extends PowerUp{
 	
 	public void activate(GameDelegate gd){
 		super.activate(gd);
-		ArrayList<Brick> brickCopy = gd.turnBricksIntoCement();
-		if(brickCopy != null) originalBricks = brickCopy;
+		CopyOnWriteArrayList<Brick> brickCopy = gd.turnBricksIntoCement();
+		if(brickCopy != null) bricksClone = brickCopy;
 	}
 	@Override
 	public void revertChanges(GameDelegate gd) {
-		gd.revertBricksToNormal(originalBricks);
+		gd.revertBricksToNormal(bricksClone);
 	}
 
 }

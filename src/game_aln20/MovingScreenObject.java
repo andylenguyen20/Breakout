@@ -11,7 +11,6 @@ public abstract class MovingScreenObject extends ScreenObject{
 		super();
 		direction = new Double();
 	}
-	
 	public void setStartingPosition(double x, double y){
 		startingPos = new Double(x,y);
 	}

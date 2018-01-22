@@ -16,7 +16,7 @@ public abstract class ScreenObject extends ImageView{
 	public void setPosition(double x, double y){
 		setX(x);
 		setY(y);
-		center.setLocation(x + getBoundsInLocal().getWidth()/2, y + + getBoundsInLocal().getHeight()/2);
+		center.setLocation(x + getBoundsInLocal().getWidth()/2, y + getBoundsInLocal().getHeight()/2);
 	}
 	
 	public double getBottom(){

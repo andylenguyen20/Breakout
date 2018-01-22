@@ -4,8 +4,6 @@ import javafx.scene.image.Image;
 
 public class BallSpeedAdjuster extends SpeedAdjuster{
 	public static final String IMAGE_NAME = "ball_speed_pwr.gif";
-	public static final double BALL_DOUBLE_SPEED = 2;
-	public static final double BALL_HALF_SPEED = 0.5;
 	
 	public BallSpeedAdjuster(double multiplier) {
 		super(multiplier);

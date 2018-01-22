@@ -18,5 +18,4 @@ public class BallCloner extends PowerUp{
 	public void revertChanges(GameDelegate gd) {
 		gd.removeBall();
 	}
-
 }

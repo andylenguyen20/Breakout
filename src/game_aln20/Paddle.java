@@ -4,28 +4,33 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 
 public class Paddle extends MovingScreenObject{
-	public static final double PADDLE_WIDTH = 20;
-	public static final double PADDLE_HEIGHT = 75;
-	public static final double PADDLE_SPEED = 200;
+	public static final double DEFAULT_WIDTH = 20;
+	public static final double DEFAULT_HEIGHT = 90;
+	public static final double DEFAULT_SPEED = 200;
 	public static final String IMAGE_NAME = "paddle.gif";
 	
 	private boolean sticky;
 	private boolean abilityOn;
 	private Ball stuckBall;
 	
+	private double startingHeight;
+	
 	public Paddle() {
 		super();
 		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
 		setImage(image);
-		setFitWidth(PADDLE_WIDTH);
-		setFitHeight(PADDLE_HEIGHT);
-		setCurrentSpeed(PADDLE_SPEED);
+		setFitWidth(DEFAULT_WIDTH);
+		setFitHeight(DEFAULT_HEIGHT);
+		setCurrentSpeed(DEFAULT_SPEED);
 		setDirection(0,0);
 		sticky = false;
 		abilityOn = false;
 	}
 	public void shrink(int level){
-		setFitHeight(PADDLE_HEIGHT - 10*level);
+		setFitHeight(DEFAULT_HEIGHT - 5*level);
+	}
+	public void setStartingHeight(double height){
+		startingHeight = height;
 	}
 	
 	public void update(Scene scene, double elapsedTime){
@@ -70,7 +75,7 @@ public class Paddle extends MovingScreenObject{
 	public void reset(int level){
 		super.reset();
 		setDirection(0,0);
-		setFitHeight(PADDLE_HEIGHT);
+		setFitHeight(startingHeight);
 		shrink(level);
 		sticky = false;
 		abilityOn = false;

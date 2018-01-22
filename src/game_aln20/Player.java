@@ -11,10 +11,13 @@ public class Player {
 	private Paddle paddle;
 	private CopyOnWriteArrayList<Brick> bricks;
 	
+	private boolean isCemented;
+	
 	public Player(){
 		this.bricks = new CopyOnWriteArrayList<Brick>();
 		this.paddle = new Paddle();
 		this.lives = DEFAULT_LIVES;
+		isCemented = false;
 	}
 	public void loseLife(){
 		lives--;
@@ -49,5 +52,11 @@ public class Player {
 	}
 	public void setOpponent(Player opponent){
 		this.opponent = opponent;
+	}
+	public boolean isCemented(){
+		return isCemented;
+	}
+	public void setCemented(boolean status){
+		isCemented = status;
 	}
 }
