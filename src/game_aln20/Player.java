@@ -55,14 +55,6 @@ public class Player {
 	}
 	
 	/*
-	 * resets the player's lives and score
-	 */
-	public void reset(){
-		this.lives = 3;
-		this.score = 0;
-	}
-	
-	/*
 	 * resets the player's lives to the default amount
 	 */
 	public void resetLives(){

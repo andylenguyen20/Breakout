@@ -4,8 +4,9 @@ import javafx.scene.image.Image;
 
 public class RandomPwrBrick extends MultiHitBrick{
 	public static final String IMAGE_NAME = "random_brick.gif";
+	public static final int HEALTH = 1;
 	public RandomPwrBrick() {
-		super(1);
+		super(HEALTH);
 		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
 		setImage(image);
 	}

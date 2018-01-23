@@ -8,6 +8,7 @@ import javafx.util.Duration;
 
 public abstract class PowerUp extends ScreenObject{
 	public static final int DEFAULT_RADIUS = 30;
+	public static final int ACTIVATION_DURATION = 3;
 	private boolean deactivated;
 	public PowerUp() {
 		super();
@@ -21,6 +22,13 @@ public abstract class PowerUp extends ScreenObject{
 	public void disable(GameDelegate gd){
 		deactivated = true;
 		revertChanges(gd);
+	}
+	
+	/*
+	 * returns a boolean that indicates whether this powerup has been deactivated
+	 */
+	public boolean isDeactivated(){
+		return deactivated;
 	}
 	
 	/*
@@ -40,9 +48,8 @@ public abstract class PowerUp extends ScreenObject{
 	 */
 	public void activate(GameDelegate gd){
 		deactivated = false;
-		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), ev -> {
+		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(ACTIVATION_DURATION), ev -> {
 			if(!deactivated) {
-				System.out.println("deactivated manually");
 				disable(gd);
 			}
 	    }));

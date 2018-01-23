@@ -7,6 +7,9 @@ import java.util.Scanner;
 import java.awt.geom.Point2D.Double;
 
 public class Level {
+	public static final double levelBallSpeedMultiplier = 25;
+	public static final double levelPaddleSizeMultiplier = 12.5;
+	
 	private int level;
 	
 	public Level(int level){
@@ -24,14 +27,14 @@ public class Level {
 	 * returns this level's additional ball speed
 	 */
 	public double getBallSpeedOffset(){
-		return level * 25;
+		return level * levelBallSpeedMultiplier;
 	}
 	
 	/*
 	 * returns this level's additional paddle size
 	 */
 	public double getPaddleSizeOffset(){
-		return -(level * 12.5);
+		return -(level * levelPaddleSizeMultiplier);
 	}
 	
 	/*
@@ -83,7 +86,6 @@ public class Level {
     
 	/*
 	 * returns a Scanner object for a given file
-	 * File input info taken from http://www2.lawrence.edu/fast/GREGGJ/CMSC150/031Files/031Files.html
 	 */
 	private Scanner getInput(String fileName){
 		Scanner input = null;

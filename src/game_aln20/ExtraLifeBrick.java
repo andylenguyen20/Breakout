@@ -1,19 +1,14 @@
 package game_aln20;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
 import javafx.scene.image.Image;
 
 public class ExtraLifeBrick extends MultiHitBrick{
-	public static final String IMAGE = "images/extra_life_brick.gif";
+	public static final String IMAGE_NAME = "extra_life_brick.gif";
+	public static final int HEALTH = 1;
 	public ExtraLifeBrick() {
-		super(1);
-		try {
-			setImage(new Image(new FileInputStream(IMAGE)));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		super(HEALTH);
+		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
+		setImage(image);
 	}
 	/*
 	 * has the GameDelegate award the player an extra life

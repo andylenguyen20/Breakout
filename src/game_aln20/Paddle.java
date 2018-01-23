@@ -15,17 +15,17 @@ public class Paddle extends MovingScreenObject{
 	
 	private double startingHeight;
 	
+	
+	// you may think constructor has duplication with the reset() function, but the constructor
+	// cannot call reset() yet since it's starting position has yet to be established
 	public Paddle() {
 		super();
 		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
 		setImage(image);
 		setFitWidth(DEFAULT_WIDTH);
-		setFitHeight(DEFAULT_HEIGHT);
+		setStartingHeight(DEFAULT_HEIGHT);
 		setStartingSpeed(DEFAULT_SPEED);
-		setCurrentSpeed(DEFAULT_SPEED);
-		setDirection(0,0);
-		sticky = false;
-		abilityOn = false;
+		resetPaddleSpecificAttributes();
 	}
 	
 	/*
@@ -83,8 +83,13 @@ public class Paddle extends MovingScreenObject{
 	 */
 	public void reset(){
 		super.reset();
+		resetPaddleSpecificAttributes();
+	}
+	
+	private void resetPaddleSpecificAttributes(){
 		setDirection(0,0);
 		setFitHeight(startingHeight);
+		setCurrentSpeed(getStartingSpeed());
 		sticky = false;
 		abilityOn = false;
 	}

@@ -174,14 +174,36 @@ public class Breakout extends Application implements GameDelegate{
         root.getChildren().add(statusDisplay);
 	}
 	private void startNewLevel(int level){
-		if(onScreenPowerUps != null){
-			for(PowerUp powerUp : onScreenPowerUps) if(powerUp != null) powerUp.disable(this);
+		disableAndClearScreenObjects();
+		setUpGameAttributesFromLevel(level);
+		resetGameComponents();
+		refreshRoot();
+		playMusicAtLevelStart();
+	}
+	private void disableAndClearScreenObjects(){
+		if(currentlyActivePowerUp != null && !currentlyActivePowerUp.isDeactivated()){
+			currentlyActivePowerUp.disable(this);
 		}
 		for(Player player : players){
         	player.getBricks().clear();
         }
 		balls.clear();
-		setUpFromLevel(level);
+	}
+	private void setUpGameAttributesFromLevel(int level){
+		myLevel = new Level(level);
+		onScreenPowerUps = myLevel.getFreshPowerUpsArray();
+		player1.getBricks().addAll(myLevel.getBricks(PLAYER1_TAG));
+		player2.getBricks().addAll(myLevel.getBricks(PLAYER2_TAG));
+		Double[] paddlePositions = myLevel.getPaddlePositions(players.length);
+		for(int i = 0; i < players.length; i++){
+			players[i].getPaddle().setStartingPosition(paddlePositions[i].getX(), paddlePositions[i].getY());
+			players[i].getPaddle().setStartingHeight(Paddle.DEFAULT_HEIGHT + myLevel.getPaddleSizeOffset());
+		}
+		Ball startingBall = new Ball();
+        startingBall.setStartingSpeed(Ball.DEFAULT_SPEED + myLevel.getBallSpeedOffset());
+        balls.add(startingBall);
+	}
+	private void resetGameComponents(){
 		for(int i = 0; i < onScreenPowerUps.length; i++){
 			onScreenPowerUps[i] = generateRandomPowerUp();
 			onScreenPowerUps[i].spawnInRandomLocation(GAME_SCREEN_WIDTH, GAME_SCREEN_HEIGHT);
@@ -196,22 +218,6 @@ public class Breakout extends Application implements GameDelegate{
 			ball.setStartingPosition(GAME_SCREEN_WIDTH/2, GAME_SCREEN_HEIGHT/2);
 			ball.reset();
 		}
-		refreshRoot();
-		playMusicAtLevelStart();
-	}
-	private void setUpFromLevel(int level){
-		myLevel = new Level(level);
-		onScreenPowerUps = myLevel.getFreshPowerUpsArray();
-		player1.getBricks().addAll(myLevel.getBricks(PLAYER1_TAG));
-		player2.getBricks().addAll(myLevel.getBricks(PLAYER2_TAG));
-		Double[] paddlePositions = myLevel.getPaddlePositions(players.length);
-		for(int i = 0; i < players.length; i++){
-			players[i].getPaddle().setStartingPosition(paddlePositions[i].getX(), paddlePositions[i].getY());
-			players[i].getPaddle().setStartingHeight(Paddle.DEFAULT_HEIGHT + myLevel.getPaddleSizeOffset());
-		}
-		Ball startingBall = new Ball();
-        startingBall.setStartingSpeed(Ball.DEFAULT_SPEED + myLevel.getBallSpeedOffset());
-        balls.add(startingBall);
 	}
 
 	private void updateStatusDisplay(){
@@ -318,7 +324,7 @@ public class Breakout extends Application implements GameDelegate{
 			for(int i = 0; i < onScreenPowerUps.length; i++){
 				PowerUp powerUp = onScreenPowerUps[i];
 				if(ball.intersects(powerUp) && powerUp.isVisible()){
-					boolean shouldDisableEarly = currentlyActivePowerUp != null && !currentlyActivePowerUp.isDisabled();
+					boolean shouldDisableEarly = currentlyActivePowerUp != null && !currentlyActivePowerUp.isDeactivated();
 					if(shouldDisableEarly){
 						currentlyActivePowerUp.disable(this);
 					}
@@ -383,9 +389,9 @@ public class Breakout extends Application implements GameDelegate{
 	}
 	@Override
 	public Paddle changePaddleSpeed(double multiplier) {
-		Paddle paddle = recentlyHit.getPaddle();
-		paddle.setCurrentSpeed(paddle.getCurrentSpeed() * multiplier);
-		return paddle;
+		Paddle paddleAffected = recentlyHit.getPaddle();
+		paddleAffected.setCurrentSpeed(paddleAffected.getCurrentSpeed() * multiplier);
+		return paddleAffected;
 	}
 	@Override
 	public void revertPaddleSpeed(Paddle paddleAffected) {
