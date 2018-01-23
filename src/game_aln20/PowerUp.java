@@ -58,7 +58,9 @@ public abstract class PowerUp extends ScreenObject{
 	}
 	
 	/*
-	 * implemented by subclasses. Reverts changes of the powerup activation
+	 * implemented by subclasses. Calls upon the GameDelegate to reverts changes of the powerup activation. 
+	 * Each powerup will have a different implementation of the revertChanges method in order to revert 
+	 * their specific powerup action.
 	 */
 	protected abstract void revertChanges(GameDelegate gd);
 }

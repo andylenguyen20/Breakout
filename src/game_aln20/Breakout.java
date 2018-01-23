@@ -314,7 +314,6 @@ public class Breakout extends Application implements GameDelegate{
 					break;
 			case 2: player.getPaddle().setAbilityOn();
 					player.getPaddle().activateSticky();
-					//check starting position of ball after death
 					break;
 			}
 		}
