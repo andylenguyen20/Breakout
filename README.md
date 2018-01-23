@@ -40,6 +40,8 @@ Simply click run from the src folder and use the keys given by the rules in the 
 __________________________________________________________________
 Decisions, assumptions, or simplifications:
 A major decision I made was to have my Breakout class implement an interface called GameDelegate. The idea was that my powerup classes needed to have access to certain game components, such as the balls, paddles, or bricks, in order to be able to activate and perform their intended "powerup". In order to limit the amount of information the powerup class had about the Breakout class (keeping it encapsulated and shy), I had its activate() and revertChanges() functions take in the GameDelegate interface, which has all the functions that make powerup changes to the game. Doing this limited the scope of information PowerUp.class was able to see, while still giving it enough information to perform its powerup duty.
+
+Another major decisions I made was to use a CopyOnWriteArrayList to keep track of the game balls and bricks. I did this so that I could make edits to the game balls and bricks at any time and to avoid concurrent editing errors.
 __________________________________________________________________
 Known bugs:
 1. The ball can clip through bricks on occasion, since I did not deal well with corner brick collisions.
