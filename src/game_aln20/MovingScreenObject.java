@@ -6,10 +6,25 @@ public abstract class MovingScreenObject extends ScreenObject{
 	private double currentSpeed;
 	private Double direction;
 	private Double startingPos;
+	private double startingSpeed;
 	
 	public MovingScreenObject(){
 		super();
 		direction = new Double();
+	}
+	
+	/*
+	 * sets the starting speed for the moving screen object
+	 */
+	public void setStartingSpeed(double speed){
+		startingSpeed = speed;
+	}
+	
+	/*
+	 * gets the starting speed for the moving screen object
+	 */
+	public double getStartingSpeed(){
+		return startingSpeed;
 	}
 	
 	/*
@@ -21,9 +36,11 @@ public abstract class MovingScreenObject extends ScreenObject{
 	
 	/*
 	 * respawns object at the starting position, assuming starting position has been set
+	 * also resets the current speed to the starting speed
 	 */
 	public void reset(){
 		setPosition(startingPos.getX(), startingPos.getY());
+		currentSpeed = startingSpeed;
 	}
 	
 	/*

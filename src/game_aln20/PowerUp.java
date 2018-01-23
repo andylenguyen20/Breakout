@@ -39,11 +39,10 @@ public abstract class PowerUp extends ScreenObject{
 	 * that is extending this class
 	 */
 	public void activate(GameDelegate gd){
-		System.out.println("ACTIVATED");
 		deactivated = false;
 		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), ev -> {
 			if(!deactivated) {
-				System.out.println("DEACTIVATED");
+				System.out.println("deactivated manually");
 				disable(gd);
 			}
 	    }));

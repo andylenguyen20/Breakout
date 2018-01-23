@@ -39,14 +39,23 @@ public class Breakout extends Application implements GameDelegate{
 	public static final String SUBMIT_MSG = "PLAY!";
 	public static final String RULES_FILE_NAME = "rules.txt";
 	public static final String END_GAME_TITLE = "GAME OVER";
+	public static final String DRAW_MSG = "It's a draw!";
+	public static final String PLAYER1_TAG = "Player1";
+	public static final String PLAYER2_TAG = "Player2";
+	public static final String INTRO_SONG_FILE_PATH = "audio/Fast_Ace.wav";
+	public static final String GAME_SONG_FILE_PATH = "audio/Arcade_Funk.wav";
 	
 	private Stage myStage;
 	private Scene myScene;
 	private Label statusDisplay;
 	private Group root;
 	private AudioClip clip;
-	public static final int SCREEN_WIDTH = 850;
-	public static final int SCREEN_HEIGHT = 500;
+	public static final int GAME_SCREEN_WIDTH = 850;
+	public static final int GAME_SCREEN_HEIGHT = 500;
+	public static final int SPLASH_SCREEN_WIDTH = 825;
+	public static final int SPLASH_SCREEN_HEIGHT = 500;
+	public static final int END_GAME_SCREEN_WIDTH = 500;
+	public static final int END_GAME_SCREEN_HEIGHT = 150;
 	
 	private Player[] players;
 	private Player player1, player2, recentlyHit;
@@ -62,7 +71,7 @@ public class Breakout extends Application implements GameDelegate{
 		initializeScreenObjects();
 		startUpSplashScreen();
 		statusDisplay = new Label();
-		statusDisplay.setTranslateX(SCREEN_WIDTH/2);
+		statusDisplay.setTranslateX(GAME_SCREEN_WIDTH/2);
 	}
 	private void initializeScreenObjects(){
 		players = new Player[2];
@@ -91,11 +100,11 @@ public class Breakout extends Application implements GameDelegate{
 			startNewLevel(1);
     	});
     	vbox.getChildren().add(button);
-    	myScene = new Scene(vbox, 500, 150);
+    	myScene = new Scene(vbox, SPLASH_SCREEN_WIDTH, SPLASH_SCREEN_HEIGHT);
     	setScene(START_TITLE);
 	}
 	private void startUpGameScreen(){
-		myScene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR);
+		myScene = new Scene(root, GAME_SCREEN_WIDTH, GAME_SCREEN_HEIGHT, BACKGROUND_COLOR);
 		myScene.setOnKeyPressed(e -> {
 			handleKeyInput(e.getCode());
 		});
@@ -111,15 +120,14 @@ public class Breakout extends Application implements GameDelegate{
 		HBox hbox = new HBox();
 		Text text;
 		if(player1.getScore() > player2.getScore()){
-			text = new Text("Player 1 wins!");
+			text = new Text(PLAYER1_TAG + "wins");
 		}else if(player2.getScore() > player1.getScore()){
-			text = new Text("Player 2 wins!");
+			text = new Text(PLAYER2_TAG + "wins");
 		}else{
-			text = new Text("It's a Draw!");
+			text = new Text(DRAW_MSG);
 		}
         hbox.getChildren().add(text);
-        hbox.setStyle("-fx-background: #FF3F3F;");
-    	myScene = new Scene(hbox, 500, 150);
+    	myScene = new Scene(hbox, END_GAME_SCREEN_WIDTH, END_GAME_SCREEN_HEIGHT);
         setScene(END_GAME_TITLE);
 	}
 	private void setScene(String title){
@@ -143,9 +151,9 @@ public class Breakout extends Application implements GameDelegate{
 		clip.play();
 	}
 	private void playMusicAtLevelStart(){
-		playMusicFromFile("audio/Fast_Ace.wav");
+		playMusicFromFile(INTRO_SONG_FILE_PATH);
 		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(TRANSITION_MUSIC_DURATION), ev -> {
-			playMusicFromFile("audio/Arcade_Funk.wav");
+			playMusicFromFile(GAME_SONG_FILE_PATH);
 	    }));
 	    timeline.setCycleCount(1);
 	    timeline.play();
@@ -176,7 +184,7 @@ public class Breakout extends Application implements GameDelegate{
 		setUpFromLevel(level);
 		for(int i = 0; i < onScreenPowerUps.length; i++){
 			onScreenPowerUps[i] = generateRandomPowerUp();
-			onScreenPowerUps[i].spawnInRandomLocation(SCREEN_WIDTH, SCREEN_HEIGHT);
+			onScreenPowerUps[i].spawnInRandomLocation(GAME_SCREEN_WIDTH, GAME_SCREEN_HEIGHT);
 		}
 		recentlyHit = new Random().nextBoolean() ? player1 : player2;
 		currentlyActivePowerUp = null;
@@ -185,7 +193,7 @@ public class Breakout extends Application implements GameDelegate{
 			player.getPaddle().reset();
 		}
 		for(Ball ball : balls){
-			ball.setStartingPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
+			ball.setStartingPosition(GAME_SCREEN_WIDTH/2, GAME_SCREEN_HEIGHT/2);
 			ball.reset();
 		}
 		refreshRoot();
@@ -194,8 +202,8 @@ public class Breakout extends Application implements GameDelegate{
 	private void setUpFromLevel(int level){
 		myLevel = new Level(level);
 		onScreenPowerUps = myLevel.getFreshPowerUpsArray();
-		player1.getBricks().addAll(myLevel.getBricks("p1"));
-		player2.getBricks().addAll(myLevel.getBricks("p2"));
+		player1.getBricks().addAll(myLevel.getBricks(PLAYER1_TAG));
+		player2.getBricks().addAll(myLevel.getBricks(PLAYER2_TAG));
 		Double[] paddlePositions = myLevel.getPaddlePositions(players.length);
 		for(int i = 0; i < players.length; i++){
 			players[i].getPaddle().setStartingPosition(paddlePositions[i].getX(), paddlePositions[i].getY());
@@ -265,7 +273,7 @@ public class Breakout extends Application implements GameDelegate{
 
 	private void resetBallIfNeeded(Ball ball){
 		if(balls.size() == 1){
-			ball.setStartingPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
+			ball.setStartingPosition(GAME_SCREEN_WIDTH/2, GAME_SCREEN_HEIGHT/2);
 			ball.reset();
     	}else{
     		balls.remove(ball);
@@ -319,7 +327,7 @@ public class Breakout extends Application implements GameDelegate{
 					root.getChildren().remove(powerUp);
 					currentlyActivePowerUp = powerUp;
 					onScreenPowerUps[i] = generateRandomPowerUp();
-					onScreenPowerUps[i].spawnInRandomLocation(SCREEN_WIDTH, SCREEN_HEIGHT);
+					onScreenPowerUps[i].spawnInRandomLocation(GAME_SCREEN_WIDTH, GAME_SCREEN_HEIGHT);
 		            root.getChildren().add(onScreenPowerUps[i]);
 				}
 			}
@@ -343,9 +351,6 @@ public class Breakout extends Application implements GameDelegate{
 				break;
 			case D: player1.getPaddle().launchBall(this); break;
 			case LEFT: player2.getPaddle().launchBall(this); break;
-			case J: player1.setLives(player1.getLives() - 1); break;
-			case K: player2.setLives(player2.getLives() - 1); break;
-			case H: new BrickCementer().activate(this); break;
 		default: break;
 		}
 	}
@@ -371,16 +376,29 @@ public class Breakout extends Application implements GameDelegate{
 		}
 	}
 	@Override
-	public void changePaddleSpeed(double multiplier) {
-		recentlyHit.getPaddle().setCurrentSpeed(recentlyHit.getPaddle().getCurrentSpeed() * multiplier);
+	public void revertBallSpeed(){
+		for(Ball ball: balls){
+			ball.setCurrentSpeed(ball.getStartingSpeed());
+		}
+	}
+	@Override
+	public Paddle changePaddleSpeed(double multiplier) {
+		Paddle paddle = recentlyHit.getPaddle();
+		paddle.setCurrentSpeed(paddle.getCurrentSpeed() * multiplier);
+		return paddle;
+	}
+	@Override
+	public void revertPaddleSpeed(Paddle paddleAffected) {
+		paddleAffected.setCurrentSpeed(paddleAffected.getStartingSpeed());
 	}
 	@Override
 	public void cloneBall() {
 		Ball referenceBall = balls.get(0);
 		Ball clone = new Ball();
-		clone.setStartingPosition(referenceBall.getX(), referenceBall.getY());
+		clone.setStartingPosition(GAME_SCREEN_WIDTH/2, GAME_SCREEN_HEIGHT/2);
 		clone.setStartingSpeed(referenceBall.getStartingSpeed());
 		clone.reset();
+		clone.setCurrentSpeed(referenceBall.getCurrentSpeed());
 		balls.add(clone);
 		root.getChildren().add(clone);
 	}
@@ -392,7 +410,7 @@ public class Breakout extends Application implements GameDelegate{
 	}
 	@Override
 	public void activateRandomPowerUp(){
-		if(currentlyActivePowerUp != null && currentlyActivePowerUp.isDisabled()){
+		if(currentlyActivePowerUp != null && !currentlyActivePowerUp.isDisabled()){
 			currentlyActivePowerUp.disable(this);
 		}
 		currentlyActivePowerUp = generateRandomPowerUp();
@@ -431,10 +449,10 @@ public class Breakout extends Application implements GameDelegate{
 					recentlyHit.getBricks().remove(brick);
 					recentlyHit.getBricks().add(cb);
 			}
-			
 		}
 		return copy;
 	}
+
 	@Override
 	public void revertBricksToNormal(CopyOnWriteArrayList<Brick> copy){
 		for(Player player : players){
@@ -448,6 +466,7 @@ public class Breakout extends Application implements GameDelegate{
 			root.getChildren().addAll(player.getBricks());
 		}
 	}
+	
 	public static void main (String[] args) {
         launch(args);
     }

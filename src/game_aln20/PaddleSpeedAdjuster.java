@@ -5,6 +5,8 @@ import javafx.scene.image.Image;
 public class PaddleSpeedAdjuster extends SpeedAdjuster{
 	public static final String IMAGE_NAME = "paddle_speed_pwr.gif";
 	
+	private Paddle paddleAffected;
+	
 	public PaddleSpeedAdjuster(double multiplier) {
 		super(multiplier);
 		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
@@ -17,7 +19,7 @@ public class PaddleSpeedAdjuster extends SpeedAdjuster{
 	 */
 	public void activate(GameDelegate gd){
 		super.activate(gd);
-		gd.changePaddleSpeed(speedMultiplier);
+		paddleAffected = gd.changePaddleSpeed(speedMultiplier);
 	}
 
 	/*
@@ -26,6 +28,6 @@ public class PaddleSpeedAdjuster extends SpeedAdjuster{
 	 */
 	@Override
 	public void revertChanges(GameDelegate gd) {
-		gd.changePaddleSpeed(1/speedMultiplier);
+		gd.revertPaddleSpeed(paddleAffected);
 	}
 }

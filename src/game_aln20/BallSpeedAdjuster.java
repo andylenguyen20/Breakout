@@ -25,6 +25,6 @@ public class BallSpeedAdjuster extends SpeedAdjuster{
 	 */
 	@Override
 	public void revertChanges(GameDelegate gd) {
-		gd.changeBallSpeed(1/speedMultiplier);
+		gd.revertBallSpeed();
 	}
 }

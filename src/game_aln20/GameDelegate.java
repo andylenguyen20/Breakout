@@ -4,7 +4,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public interface GameDelegate {
 	void changeBallSpeed(double multiplier);
-	void changePaddleSpeed(double multiplier);
+	void revertBallSpeed();
+	Paddle changePaddleSpeed(double multiplier);
+	void revertPaddleSpeed(Paddle paddle);
 	void cloneBall();
 	void removeBall();
 	void activateRandomPowerUp();

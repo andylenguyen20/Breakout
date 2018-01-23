@@ -11,8 +11,6 @@ public class Ball extends MovingScreenObject{
 	public static final double DEFAULT_SPEED = 500;
 	public static final String IMAGE_NAME = "ball.gif";
 	
-	public double startingSpeed;
-	
 	public Ball(){
 		super();
 		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
@@ -21,20 +19,6 @@ public class Ball extends MovingScreenObject{
 		setFitHeight(DEFAULT_RADIUS);
 		setCurrentSpeed(DEFAULT_SPEED);
 		setStartingSpeed(DEFAULT_SPEED);
-	}
-	
-	/*
-	 * sets the starting speed for the ball
-	 */
-	public void setStartingSpeed(double speed){
-		startingSpeed = speed;
-	}
-	
-	/*
-	 * gets the starting speed for the ball
-	 */
-	public double getStartingSpeed(){
-		return startingSpeed;
 	}
 	
 	/*
@@ -80,7 +64,6 @@ public class Ball extends MovingScreenObject{
 	 */
 	public void reset(){
 		super.reset();
-		setCurrentSpeed(startingSpeed);
 		Double normalizedDir = getRandomNormalizedDirection();
 		setDirection(normalizedDir.getX(), normalizedDir.getY());
 	}

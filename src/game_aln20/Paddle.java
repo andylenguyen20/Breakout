@@ -21,6 +21,7 @@ public class Paddle extends MovingScreenObject{
 		setImage(image);
 		setFitWidth(DEFAULT_WIDTH);
 		setFitHeight(DEFAULT_HEIGHT);
+		setStartingSpeed(DEFAULT_SPEED);
 		setCurrentSpeed(DEFAULT_SPEED);
 		setDirection(0,0);
 		sticky = false;

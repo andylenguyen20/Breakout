@@ -13,9 +13,9 @@ public class Player {
 	private boolean isCemented;
 	
 	public Player(){
-		this.bricks = new CopyOnWriteArrayList<Brick>();
-		this.paddle = new Paddle();
-		this.lives = DEFAULT_LIVES;
+		bricks = new CopyOnWriteArrayList<Brick>();
+		paddle = new Paddle();
+		lives = DEFAULT_LIVES;
 		isCemented = false;
 	}
 	
