@@ -2,9 +2,7 @@ package game_aln20;
 
 import java.io.File;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -15,34 +13,26 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
-import javafx.scene.media.Media;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import java.applet.Applet;
 import java.awt.geom.Point2D.Double;
 import java.net.URL;
 
 public class Breakout extends Application implements GameDelegate{
-	public static final Paint BACKGROUND = Color.AZURE;
+	public static final Paint BACKGROUND_COLOR = Color.AZURE;
 	public static final int FRAMES_PER_SECOND = 60;
     public static final int MILLISECOND_DELAY = 1000 / FRAMES_PER_SECOND;
+    public static final int TRANSITION_MUSIC_DURATION = 3;
     public static final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
 	public static final String GAME_TITLE = "Breakout Pong Game";
 	public static final String START_TITLE = "Breakout Pong Rules";
@@ -50,14 +40,11 @@ public class Breakout extends Application implements GameDelegate{
 	public static final String RULES_FILE_NAME = "rules.txt";
 	public static final String END_GAME_TITLE = "GAME OVER";
 	
-	//String path = new File("src/audio/Arcade_Funk.mp3").getAbsolutePath();
-	
-	//public final Media transition_song = new Media(getClass().getResource("Arcade_Funk.mp3").toExternalForm());
-	//new MediaPlayer(sound_3).play();
-	
 	private Stage myStage;
 	private Scene myScene;
+	private Label statusDisplay;
 	private Group root;
+	private AudioClip clip;
 	public static final int SCREEN_WIDTH = 850;
 	public static final int SCREEN_HEIGHT = 500;
 	
@@ -66,9 +53,7 @@ public class Breakout extends Application implements GameDelegate{
 	private CopyOnWriteArrayList<Ball> balls;
 	private PowerUp[] onScreenPowerUps;
 	private PowerUp currentlyActivePowerUp;
-	
 	private Level myLevel;
-	private Label statusDisplay;
 	
 	@Override
 	public void start(Stage stage) {
@@ -79,30 +64,7 @@ public class Breakout extends Application implements GameDelegate{
 		statusDisplay = new Label();
 		statusDisplay.setTranslateX(SCREEN_WIDTH/2);
 	}
-	private void playMusic(){
-		String filename = "audio/Arcade_Funk.wav";
-		//String filename = "audio/2001.mid";
-		URL url = null;
-		try {
-			File file = new File(filename);
-		if (file.canRead()) url = file.toURI().toURL();
-		}
-		catch (MalformedURLException e) { e.printStackTrace(); }
-		// URL url = StdAudio.class.getResource(filename);
-		if (url == null) throw new RuntimeException("audio " + filename + " not found");
-		//AudioClip clip = Applet.newAudioClip(url);
-		AudioClip clip = new AudioClip(url.toString());
-		clip.setCycleCount(Timeline.INDEFINITE);
-		clip.play();
-		//clip.loop();
-	}
-	private void setScene(String title){
-		myStage.setScene(myScene);
-        myStage.setTitle(title);
-        myStage.show();
-	}
 	private void initializeScreenObjects(){
-		
 		players = new Player[2];
 		players[0] = new Player();
 		players[1] = new Player();
@@ -133,7 +95,7 @@ public class Breakout extends Application implements GameDelegate{
     	setScene(START_TITLE);
 	}
 	private void startUpGameScreen(){
-		myScene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND);
+		myScene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR);
 		myScene.setOnKeyPressed(e -> {
 			handleKeyInput(e.getCode());
 		});
@@ -160,6 +122,35 @@ public class Breakout extends Application implements GameDelegate{
     	myScene = new Scene(hbox, 500, 150);
         setScene(END_GAME_TITLE);
 	}
+	private void setScene(String title){
+		myStage.setScene(myScene);
+        myStage.setTitle(title);
+        myStage.show();
+	}
+	private void playMusicFromFile(String filename){
+		if(clip != null) {
+			clip.stop();
+		}
+		URL url = null;
+		try {
+			File file = new File(filename);
+			if (file.canRead()) url = file.toURI().toURL();
+		}
+		catch (MalformedURLException e) { e.printStackTrace(); }
+		if (url == null) throw new RuntimeException("audio " + filename + " not found");
+		clip = new AudioClip(url.toString());
+		clip.setCycleCount(Timeline.INDEFINITE);
+		clip.play();
+	}
+	private void playMusicAtLevelStart(){
+		playMusicFromFile("audio/Fast_Ace.wav");
+		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(TRANSITION_MUSIC_DURATION), ev -> {
+			playMusicFromFile("audio/Arcade_Funk.wav");
+	    }));
+	    timeline.setCycleCount(1);
+	    timeline.play();
+	}
+	
 	private void refreshRoot(){
 		root.getChildren().clear();
         for(Player player : players){
@@ -198,7 +189,7 @@ public class Breakout extends Application implements GameDelegate{
 			ball.reset();
 		}
 		refreshRoot();
-		playMusic();
+		playMusicAtLevelStart();
 	}
 	private void setUpFromLevel(int level){
 		myLevel = new Level(level);
@@ -263,10 +254,10 @@ public class Breakout extends Application implements GameDelegate{
 		for(Ball ball : balls){
 			int offScreenStatus = ball.getOffscreenStatus(myScene);
 	        if(offScreenStatus == -1){
-	        	player1.loseLife();
+	        	player1.setLives(player1.getLives() - 1);
 	        	resetBallIfNeeded(ball);
 	        }else if(offScreenStatus == 1){
-	        	player2.loseLife();
+	        	player2.setLives(player2.getLives() - 1);
 	        	resetBallIfNeeded(ball);
 	        }
 		}
@@ -285,7 +276,7 @@ public class Breakout extends Application implements GameDelegate{
 	private void checkLives(){
 		for(Player player : players){
 			if(player.getLives() == 0){
-				player.getOpponent().incrementScore();
+				player.getOpponent().setScore(player.getOpponent().getScore() + 1);;
 				if(myLevel.getLevel() == 3){
 					startUpEndGameScreen();
 				}else{
@@ -344,16 +335,16 @@ public class Breakout extends Application implements GameDelegate{
 			case DIGIT1: startNewLevel(1); break;
 			case DIGIT2: startNewLevel(2); break;
 			case DIGIT3: startNewLevel(3); break;
-			case L: player1.addLife(); break;
-			case F: player2.addLife(); break;
+			case L: player1.setLives(player1.getLives() + 1); break;
+			case F: player2.setLives(player2.getLives() + 1); break;
 			case R: player1.getPaddle().reset();
 				player2.getPaddle().reset();
 				for(Ball ball : balls) ball.reset();
 				break;
 			case D: player1.getPaddle().launchBall(this); break;
 			case LEFT: player2.getPaddle().launchBall(this); break;
-			case J: player1.loseLife(); break;
-			case K: player2.loseLife(); break;
+			case J: player1.setLives(player1.getLives() - 1); break;
+			case K: player2.setLives(player2.getLives() - 1); break;
 			case H: new BrickCementer().activate(this); break;
 		default: break;
 		}
@@ -361,8 +352,12 @@ public class Breakout extends Application implements GameDelegate{
     private PowerUp generateRandomPowerUp(){
     	PowerUp[] options = new PowerUp[]
                 { new PaddleSpeedAdjuster(SpeedAdjuster.FASTER_SPEED_MULTIPLIER), 
+                	new PaddleSpeedAdjuster(SpeedAdjuster.FASTER_SPEED_MULTIPLIER), 
+                	new PaddleSpeedAdjuster(SpeedAdjuster.SLOWER_SPEED_MULTIPLIER),
                 	new PaddleSpeedAdjuster(SpeedAdjuster.SLOWER_SPEED_MULTIPLIER),
                 	new BallSpeedAdjuster(SpeedAdjuster.FASTER_SPEED_MULTIPLIER),
+                	new BallSpeedAdjuster(SpeedAdjuster.FASTER_SPEED_MULTIPLIER),
+                	new BallSpeedAdjuster(SpeedAdjuster.SLOWER_SPEED_MULTIPLIER),
                 	new BallSpeedAdjuster(SpeedAdjuster.SLOWER_SPEED_MULTIPLIER),
                 	new BallCloner(), 
                 	new BrickCementer()};
@@ -416,7 +411,7 @@ public class Breakout extends Application implements GameDelegate{
 	@Override
 	public void awardExtraLife(){
 		for(Player player : players){
-			if(recentlyHit == player) player.addLife();
+			if(recentlyHit == player) player.setLives(player.getLives() + 1);;
 		}
 	}
 	@Override

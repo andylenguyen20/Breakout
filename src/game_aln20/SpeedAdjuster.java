@@ -8,6 +8,10 @@ public abstract class SpeedAdjuster extends PowerUp{
 		super();
 		speedMultiplier = multiplier;
 	}
+	
+	/*
+	 * returns a speed multiplier
+	 */
 	public double getSpeedMultiplier(){
 		return speedMultiplier;
 	}	

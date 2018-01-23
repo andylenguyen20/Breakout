@@ -22,22 +22,48 @@ public class Ball extends MovingScreenObject{
 		setCurrentSpeed(DEFAULT_SPEED);
 		setStartingSpeed(DEFAULT_SPEED);
 	}
+	
+	/*
+	 * sets the starting speed for the ball
+	 */
 	public void setStartingSpeed(double speed){
 		startingSpeed = speed;
 	}
+	
+	/*
+	 * gets the starting speed for the ball
+	 */
 	public double getStartingSpeed(){
 		return startingSpeed;
 	}
+	
+	/*
+	 * returns a boolean indicating whether the ball is colliding with a ScreenObject
+	 */
 	public boolean intersects(ScreenObject screenObject){
 		return intersects(screenObject.getBoundsInLocal());
 	}
+	
+	/*
+	 * updates the ball's position and center over a given elapsed time, taking into
+	 * account for wall bounces
+	 */
 	public void update(Scene scene, double elapsedTime){
 		super.update(elapsedTime);
 		redirectOffscreen(scene);
 	}
+	
+	/*
+	 * returns the radius of the ball
+	 */
 	public double getRadius(){
 		return getBoundsInLocal().getHeight()/2;
 	}
+	
+	/*
+	 * checks to see if the ball is off either the left or right side of the screen.
+	 * returns -1 for off the left side, 1 for off the right side, 0 for not offscreen
+	 */
 	public int getOffscreenStatus(Scene scene){
 		if(getRight() <= 0){
 			return -1;
@@ -47,6 +73,11 @@ public class Ball extends MovingScreenObject{
 			return 0;
 		}
 	}
+	
+	/*
+	 * resets the ball position, ball speed, and sets a new random direction for the ball
+	 * also @see game_aln20.MovingScreenObject#reset()
+	 */
 	public void reset(){
 		super.reset();
 		setCurrentSpeed(startingSpeed);
@@ -55,13 +86,17 @@ public class Ball extends MovingScreenObject{
 	}
 	
 	/*
-	 * HELPERS
+	 * redirects the ball off the top and bottom screens if needed
 	 */
 	private void redirectOffscreen(Scene scene){
 		if(getTop() <= 0 || getBottom() >= scene.getHeight()){
 			setDirection(getDirection().getX(), -getDirection().getY());
 		}
 	}
+	
+	/*
+	 * returns a random normalized direction for the ball in the form of a Point2D.Double Object
+	 */
 	private Double getRandomNormalizedDirection(){
 		Random random = new Random();
 		double y = random.nextDouble();

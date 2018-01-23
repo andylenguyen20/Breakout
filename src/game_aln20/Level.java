@@ -1,29 +1,50 @@
 package game_aln20;
 
 import java.io.File;
+
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.awt.geom.Point2D.Double;
 
 public class Level {
 	private int level;
-	private GameDelegate context;
+	
 	public Level(int level){
 		this.level = level;
 	}
+	
+	/*
+	 * returns the current level
+	 */
 	public int getLevel(){
 		return level;
 	}
+	
+	/*
+	 * returns this level's additional ball speed
+	 */
 	public double getBallSpeedOffset(){
 		return level * 25;
 	}
+	
+	/*
+	 * returns this level's additional paddle size
+	 */
 	public double getPaddleSizeOffset(){
 		return -(level * 12.5);
 	}
+	
+	/*
+	 * returns an empty PowerUp array for the new level
+	 */
 	public PowerUp[] getFreshPowerUpsArray(){
 		return new PowerUp[level];
 	}
+	
+	/*
+	 * reads paddle positions from a file specific to this level
+	 * and returns the coordinates in a Point2D.Double array
+	 */
 	public Double[] getPaddlePositions(int numPaddles){
         Scanner input = getInput("levels/level_paddlepos" + level + ".txt");
         Double[] positions = new Double[numPaddles];
@@ -32,6 +53,11 @@ public class Level {
         }
         return positions;
 	}
+	
+	/*
+	 * reads a given player's brick positions from a file specific to this level
+	 * and returns an ArrayList of bricks to be used for this level
+	 */
 	public ArrayList<Brick> getBricks(String playerTag){
         Scanner input = getInput("levels/level_bricks" + level + ".txt");
         ArrayList<Brick> bricks = new ArrayList<Brick>();
@@ -56,9 +82,9 @@ public class Level {
 	}
     
 	/*
-	 * HELPERS
+	 * returns a Scanner object for a given file
+	 * File input info taken from http://www2.lawrence.edu/fast/GREGGJ/CMSC150/031Files/031Files.html
 	 */
-	// file-reading information taken from http://www2.lawrence.edu/fast/GREGGJ/CMSC150/031Files/031Files.html
 	private Scanner getInput(String fileName){
 		Scanner input = null;
         try {
@@ -68,6 +94,10 @@ public class Level {
         }
         return input;
 	}
+	
+	/*
+	 * generates a random MultiHitBrick
+	 */
 	private Brick generateRandomMultiHitBrick(){
 	    	Brick[] options = new Brick[]
 	                {new MultiHitBrick(1), 

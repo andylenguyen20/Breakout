@@ -1,20 +1,18 @@
 package game_aln20;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
 import javafx.scene.image.Image;
 
 public class RandomPwrBrick extends MultiHitBrick{
-	public static final String IMAGE = "images/random_brick.gif";
+	public static final String IMAGE_NAME = "random_brick.gif";
 	public RandomPwrBrick() {
 		super(1);
-		try {
-			setImage(new Image(new FileInputStream(IMAGE)));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
+		setImage(image);
 	}
+	
+	/*
+	 * has the GameDelegate activate a random powerup
+	 */
 	public void activateRandomPowerUp(GameDelegate gd){
 		gd.activateRandomPowerUp();
 	}

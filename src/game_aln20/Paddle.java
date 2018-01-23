@@ -26,10 +26,19 @@ public class Paddle extends MovingScreenObject{
 		sticky = false;
 		abilityOn = false;
 	}
+	
+	/*
+	 * sets the starting height of the paddle. Whenever the paddle is reset,
+	 * its height should go to this starting height.
+	 */
 	public void setStartingHeight(double height){
 		startingHeight = height;
 	}
 	
+	/*
+	 * updates the paddle's position over an elapsed time, also restricting it from
+	 * moving offscreen
+	 */
 	public void update(Scene scene, double elapsedTime){
 		if(getY() >= scene.getHeight() - getBoundsInLocal().getHeight() 
 				&& getDirection().getY() != -1){
@@ -37,8 +46,15 @@ public class Paddle extends MovingScreenObject{
 		}else if(getY() <= 0 && getDirection().getY() != 1){
 			return;
 		}
-		update(elapsedTime);
+		super.update(elapsedTime);
 	}
+	
+	/*
+	 * returns a boolean indicating whether the paddle has redirected the ball
+	 * returns true if the ball has been redirected, either through stickyAbility or through
+	 * normal redirection
+	 * returns false if the paddle is not in contact with the ball
+	 */
 	public boolean redirectBall(Ball ball){
 		if(!ball.intersects(this)){
 			return false;
@@ -58,6 +74,12 @@ public class Paddle extends MovingScreenObject{
 		}
 		return true;
 	}
+	
+	/*
+	 * resets the ball's sticky ability and abilityOn boolean, as well as starting height, starting
+	 * position, and starting direction
+	 * also @see game_aln20.MovingScreenObject#reset()
+	 */
 	public void reset(){
 		super.reset();
 		setDirection(0,0);
@@ -65,16 +87,33 @@ public class Paddle extends MovingScreenObject{
 		sticky = false;
 		abilityOn = false;
 	}
+	
+	/*
+	 * switches on abilityOn boolean to indicate the paddle currently has an ability
+	 */
 	public void setAbilityOn(){
 		abilityOn = true;
 	}
+	
+	/*
+	 * returns a boolean indicating whether the paddle currently has an ability
+	 */
 	public boolean abilityOn(){
 		return abilityOn;
 	}
+	
+	/*
+	 * activates the paddle's sticky ability
+	 */
 	public void activateSticky(){
 		sticky = true;
 	}
-	public void stickToBall(Ball ball){
+	
+	/*
+	 * activates whenever the paddle makes contact with the ball.
+	 * sticks the ball to the center of the paddle
+	 */
+	private void stickToBall(Ball ball){
 		if(stuckBall == null){
 			ball.setPosition(getCenter().getX() - ball.getRadius(), getCenter().getY()- ball.getRadius());
 			ball.setCurrentSpeed(0);
@@ -83,6 +122,10 @@ public class Paddle extends MovingScreenObject{
 			ball.setPosition(getCenter().getX() - ball.getRadius(), getCenter().getY()- ball.getRadius());
 		}
 	}
+	
+	/*
+	 * gets the GameDelegate to launch the ball
+	 */
 	public void launchBall(GameDelegate gd){
 		if(!sticky || stuckBall == null) return;
 		gd.launchBallFromStickyPaddle(stuckBall, this);

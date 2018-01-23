@@ -15,6 +15,9 @@ public class ExtraLifeBrick extends MultiHitBrick{
 			e.printStackTrace();
 		}
 	}
+	/*
+	 * has the GameDelegate award the player an extra life
+	 */
 	public void awardExtraLife(GameDelegate gd){
 		gd.awardExtraLife();
 	}

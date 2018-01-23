@@ -9,14 +9,18 @@ public abstract class Brick extends ScreenObject{
 		setFitWidth(BRICK_WIDTH);
 		setFitHeight(BRICK_HEIGHT);
 	}
+	
+	/*
+	 * returns a boolean indicating whether the ball has collided with this brick.
+	 * returns true if the ball has collided, returns false if not
+	 */
 	public boolean collide(Ball ball){
 		if(!ball.intersects(this)){
 			return false;
 		}
-		// hit top or bottom
 		if(ball.getCenter().getX() >= getLeft() && ball.getCenter().getX() <= getRight()){
 			ball.setDirection(ball.getDirection().getX(), -ball.getDirection().getY());
-		}// hit left or right
+		}
 		else if(ball.getCenter().getY() <= getBottom() && ball.getCenter().getY() >= getTop()){
 			ball.setDirection(-ball.getDirection().getX(), ball.getDirection().getY());
 		}
