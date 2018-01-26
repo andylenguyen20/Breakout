@@ -1,12 +1,16 @@
 package game_aln20;
 
 import java.awt.geom.Point2D.Double;
+
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public abstract class ScreenObject extends ImageView{
 	private Double center;
-	public ScreenObject(){
+	public ScreenObject(String imageName){
 		super();
+		Image image = new Image(getClass().getClassLoader().getResourceAsStream(imageName));
+		setImage(image);
 		center = new Double();
 	}
 	

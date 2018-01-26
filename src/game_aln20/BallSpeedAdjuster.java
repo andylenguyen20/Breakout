@@ -1,14 +1,10 @@
 package game_aln20;
 
-import javafx.scene.image.Image;
-
 public class BallSpeedAdjuster extends SpeedAdjuster{
 	public static final String IMAGE_NAME = "ball_speed_pwr.gif";
 	
 	public BallSpeedAdjuster(double multiplier) {
-		super(multiplier);
-		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
-		setImage(image);
+		super(IMAGE_NAME, multiplier);
 	}
 	
 	/*
@@ -17,14 +13,14 @@ public class BallSpeedAdjuster extends SpeedAdjuster{
 	 */
 	public void activate(GameDelegate gd){
 		super.activate(gd);
-		gd.changeBallSpeed(speedMultiplier);
+		gd.changeBallSpeed(super.getSpeedMultiplier());
 	}
 	/*
 	 * Has the GameDelegate divide the ball speed by the same speed multiplier
 	 * also @see game_aln20.PowerUp#revertChanges(game_aln20.GameDelegate)
 	 */
-	@Override
-	public void revertChanges(GameDelegate gd) {
+	public void deactivate(GameDelegate gd) {
+		super.deactivate(gd);
 		gd.revertBallSpeed();
 	}
 }

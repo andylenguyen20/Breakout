@@ -4,8 +4,8 @@ public abstract class Brick extends ScreenObject{
 	public static final double BRICK_WIDTH = 19;
 	public static final double BRICK_HEIGHT = 49;
 	
-	public Brick() {
-		super();
+	public Brick(String imageName) {
+		super(imageName);
 		setFitWidth(BRICK_WIDTH);
 		setFitHeight(BRICK_HEIGHT);
 	}

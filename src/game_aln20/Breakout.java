@@ -3,6 +3,7 @@ package game_aln20;
 import java.io.File;
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -182,7 +183,7 @@ public class Breakout extends Application implements GameDelegate{
 	}
 	private void disableAndClearScreenObjects(){
 		if(currentlyActivePowerUp != null && !currentlyActivePowerUp.isDeactivated()){
-			currentlyActivePowerUp.disable(this);
+			currentlyActivePowerUp.deactivate(this);
 		}
 		for(Player player : players){
         	player.getBricks().clear();
@@ -325,7 +326,7 @@ public class Breakout extends Application implements GameDelegate{
 				if(ball.intersects(powerUp) && powerUp.isVisible()){
 					boolean shouldDisableEarly = currentlyActivePowerUp != null && !currentlyActivePowerUp.isDeactivated();
 					if(shouldDisableEarly){
-						currentlyActivePowerUp.disable(this);
+						currentlyActivePowerUp.deactivate(this);
 					}
 					powerUp.setVisible(false);
 					powerUp.activate(this);
@@ -416,7 +417,7 @@ public class Breakout extends Application implements GameDelegate{
 	@Override
 	public void activateRandomPowerUp(){
 		if(currentlyActivePowerUp != null && !currentlyActivePowerUp.isDisabled()){
-			currentlyActivePowerUp.disable(this);
+			currentlyActivePowerUp.deactivate(this);
 		}
 		currentlyActivePowerUp = generateRandomPowerUp();
 		currentlyActivePowerUp.activate(this);
@@ -438,10 +439,10 @@ public class Breakout extends Application implements GameDelegate{
 		}
 	}
 	@Override
-	public CopyOnWriteArrayList<Brick> turnBricksIntoCement(){
+	public ArrayList<Brick> turnBricksIntoCement(){
 		if(recentlyHit.isCemented()) return null;
 		recentlyHit.setCemented(true);
-		CopyOnWriteArrayList<Brick> copy = new CopyOnWriteArrayList<Brick>();
+		ArrayList<Brick> copy = new ArrayList<Brick>();
 		for(Brick brick : recentlyHit.getBricks()){
 			boolean activeMultiHit = brick instanceof MultiHitBrick && ((MultiHitBrick) brick).isActive();
 			boolean cementBrick = brick instanceof CementBrick;
@@ -459,7 +460,7 @@ public class Breakout extends Application implements GameDelegate{
 	}
 
 	@Override
-	public void revertBricksToNormal(CopyOnWriteArrayList<Brick> copy){
+	public void revertBricksToNormal(ArrayList<Brick> copy){
 		for(Player player : players){
 			if(!player.isCemented()){
 				continue;

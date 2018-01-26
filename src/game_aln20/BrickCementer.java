@@ -1,17 +1,13 @@
 package game_aln20;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import javafx.scene.image.Image;
+import java.util.ArrayList;
 
 public class BrickCementer extends PowerUp{
-	private CopyOnWriteArrayList<Brick> bricksClone;
+	private ArrayList<Brick> bricksClone;
 	public static final String IMAGE_NAME = "brick_cementer_pwr.gif";
 	
 	public BrickCementer(){
-		super();
-		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
-		setImage(image);
+		super(IMAGE_NAME);
 	}
 	
 	/*
@@ -19,9 +15,10 @@ public class BrickCementer extends PowerUp{
 	 * affected player as well as turn all of these bricks into cement
 	 * also @see game_aln20.PowerUp#activate(game_aln20.GameDelegate)
 	 */
+	@Override
 	public void activate(GameDelegate gd){
 		super.activate(gd);
-		CopyOnWriteArrayList<Brick> brickCopy = gd.turnBricksIntoCement();
+		ArrayList<Brick> brickCopy = gd.turnBricksIntoCement();
 		if(brickCopy != null) bricksClone = brickCopy;
 	}
 	
@@ -30,7 +27,8 @@ public class BrickCementer extends PowerUp{
 	 * also @see game_aln20.PowerUp#revertChanges(game_aln20.GameDelegate)
 	 */
 	@Override
-	public void revertChanges(GameDelegate gd) {
+	public void deactivate(GameDelegate gd) {
+		super.deactivate(gd);
 		gd.revertBricksToNormal(bricksClone);
 	}
 

@@ -3,10 +3,10 @@ package game_aln20;
 import javafx.scene.image.Image;
 
 public class CementBrick extends Brick{
-	public static final String IMAGE = "cement_brick.gif";
+	public static final String IMAGE_NAME = "cement_brick.gif";
 	public CementBrick() {
-		super();
-		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE));
+		super(IMAGE_NAME);
+		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
 		setImage(image);
 	}
 }

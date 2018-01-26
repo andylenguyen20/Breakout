@@ -8,8 +8,8 @@ public abstract class MovingScreenObject extends ScreenObject{
 	private Double startingPos;
 	private double startingSpeed;
 	
-	public MovingScreenObject(){
-		super();
+	public MovingScreenObject(String imageName){
+		super(imageName);
 		direction = new Double();
 	}
 	

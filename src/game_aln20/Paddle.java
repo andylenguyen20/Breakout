@@ -1,7 +1,6 @@
 package game_aln20;
 
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 
 public class Paddle extends MovingScreenObject{
 	public static final double DEFAULT_WIDTH = 20;
@@ -19,9 +18,7 @@ public class Paddle extends MovingScreenObject{
 	// you may think constructor has duplication with the reset() function, but the constructor
 	// cannot call reset() yet since it's starting position has yet to be established
 	public Paddle() {
-		super();
-		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
-		setImage(image);
+		super(IMAGE_NAME);
 		setFitWidth(DEFAULT_WIDTH);
 		setStartingHeight(DEFAULT_HEIGHT);
 		setStartingSpeed(DEFAULT_SPEED);

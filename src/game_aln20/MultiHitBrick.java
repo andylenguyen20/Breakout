@@ -7,7 +7,7 @@ public class MultiHitBrick extends Brick{
 	private boolean active;
 	
 	public MultiHitBrick(int health) {
-		super();
+		super("brick" + health + ".gif");
 		this.health = health;
 		this.active = true;
 		setImage();

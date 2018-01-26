@@ -1,7 +1,8 @@
 package game_aln20;
 
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 import java.awt.geom.Point2D.Double;
 import java.util.Random;
 
@@ -12,9 +13,7 @@ public class Ball extends MovingScreenObject{
 	public static final String IMAGE_NAME = "ball.gif";
 	
 	public Ball(){
-		super();
-		Image image = new Image(getClass().getClassLoader().getResourceAsStream(IMAGE_NAME));
-		setImage(image);
+		super(IMAGE_NAME);
 		setFitWidth(DEFAULT_RADIUS);
 		setFitHeight(DEFAULT_RADIUS);
 		setCurrentSpeed(DEFAULT_SPEED);
@@ -24,8 +23,8 @@ public class Ball extends MovingScreenObject{
 	/*
 	 * returns a boolean indicating whether the ball is colliding with a ScreenObject
 	 */
-	public boolean intersects(ScreenObject screenObject){
-		return intersects(screenObject.getBoundsInLocal());
+	public boolean intersects(ImageView imageView){
+		return intersects(imageView.getBoundsInLocal());
 	}
 	
 	/*
