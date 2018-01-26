@@ -65,7 +65,8 @@ public interface GameDelegate {
 	void activateRandomPowerUp();
 	
 	/*
-	 * Called by the Paddle class. The Breakout class provides this implementation: launches the inputed Ball from the inputed Paddle.
+	 * Called by the Paddle class. The Breakout class provides this implementation: launches the inputed Ball from the inputed Paddle. This method is necessary
+	 * because only the Breakout class knows which side of the paddle to launch the ball from, depending on whether it is Player 1's paddle or Player 2's paddle.
 	 */
 	void launchBallFromStickyPaddle(Ball ball, Paddle paddle);
 	
